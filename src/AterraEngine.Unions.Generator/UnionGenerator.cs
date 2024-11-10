@@ -20,7 +20,7 @@ public class UnionGenerator : IIncrementalGenerator {
         // Detect types with the IUnion<> interface
         IncrementalValueProvider<ImmutableArray<UnionObject>> unionStructs = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: (node, _) => node is StructDeclarationSyntax { BaseList: not null },
+                predicate: (node, _) => node is StructDeclarationSyntax,
                 GatherUnionStructInfo)
             .Where(info => info is not null)
             .Select((info, _) => new UnionObject(
@@ -73,10 +73,10 @@ public class UnionGenerator : IIncrementalGenerator {
             }
         }
 
-        return typeArguments.Zip(aliases, (type, alias) => (type, alias))
+        return typeArguments.Zip(aliases, resultSelector: (type, alias) => (type, alias))
             .ToDictionary<(ITypeSymbol type, string? alias), ITypeSymbol, string?>(
-                tuple => tuple.type,
-                tuple => tuple.alias,
+                keySelector: tuple => tuple.type,
+                elementSelector: tuple => tuple.alias,
                 SymbolEqualityComparer.Default
             );
     }
@@ -131,11 +131,13 @@ public class UnionGenerator : IIncrementalGenerator {
         return stringBuilder.ToString();
     }
 
-    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) {
-        if (keyValuePair is { Key: INamedTypeSymbol { IsGenericType: true } namedType, Value: null }) {
-            return namedType.Name;
-        }
-        return keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key);
+private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) {
+    return keyValuePair.Key switch {
+        INamedTypeSymbol { IsGenericType: true, IsTupleType : false } namedType => namedType.Name,
+        INamedTypeSymbol { IsGenericType: true, IsTupleType: true } namedTypeTuple => "TupleOf" + string.Join("And", namedTypeTuple.TupleElements.Select(e => GetTypeAlias(e.Type))),
+        _ => keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key)
+    };
+
     }
 
     private static string GetTypeAlias(ITypeSymbol type) {
