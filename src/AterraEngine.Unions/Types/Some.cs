@@ -6,4 +6,4 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public readonly record struct Some<T>(IEnumerable<T> Values);
+public readonly record struct Some<T>(IEnumerable<T?> Values);

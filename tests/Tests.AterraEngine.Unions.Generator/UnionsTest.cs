@@ -38,7 +38,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
         public struct True;
         public struct False;
 
-        [AterraEngine.Common.Attributes.UnionGenerator<True, False>]
+        [AterraEngine.Unions.UnionGenerator<True, False>]
         public readonly partial struct TrueOrFalse() {
             public static implicit operator TrueOrFalse(bool value) => new() {
                 Value = value,
@@ -98,7 +98,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
         public struct None;
         public struct False;
                 
-        [AterraEngine.Common.Attributes.UnionGenerator<(Success<string>, None), False>]
+        [AterraEngine.Unions.UnionGenerator<(Success<string>, None), False>]
         public readonly partial struct TupleOrFalse();
         """;
 
@@ -151,7 +151,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
         public struct None;
         public struct False;
 
-        [AterraEngine.Common.Attributes.UnionGenerator<(Success<string>, None), False>(aliasT0: "Succeeded")]
+        [AterraEngine.Unions.UnionGenerator<(Success<string>, None), False>()]
+        [AterraEngine.Unions.UnionAliases(aliasT0: "Succeeded")
         public readonly partial struct TupleOrFalse();
         """;
 
@@ -201,7 +202,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
         public struct True;
         public struct False;
 
-        [AterraEngine.Common.Attributes.UnionGenerator<True, False>(aliasT0: "Nothing", aliasT1: "Something")]
+        [AterraEngine.Unions.UnionGenerator<True, False>()]
+        [AterraEngine;Unions.UnionAliases(aliasT0: "Nothing", aliasT1: "Something")]
         public readonly partial struct NothingOrSomething();
         """;
 
@@ -252,7 +254,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
         public struct False;
         public struct Done;
 
-        [AterraEngine.Common.Attributes.UnionGenerator<True, False, Done>(aliasT2: "Alias")]
+        [AterraEngine.Unions.UnionGenerator<True, False, Done>()]
+        [AterraEngine.Unions.UnionAliases(aliasT2: "Alias")]
         public readonly partial struct TrueFalseOrAlias();
         """;
 
