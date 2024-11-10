@@ -103,7 +103,7 @@ public class UnionGenerator : IIncrementalGenerator {
         }
 
         stringBuilder.Append($"namespace {unionObject.Namespace};\n");
-        stringBuilder.AppendLine($"public readonly partial struct {unionObject.GetStructClassName} {{");
+        stringBuilder.AppendLine($"public readonly partial struct {unionObject.GetStructClassName()} {{");
         stringBuilder.AppendLine("    public object Value { get; init; } = default!;");
 
         foreach (KeyValuePair<ITypeSymbol, string?> kvp in unionObject.TypesWithAliases) {
@@ -120,7 +120,7 @@ public class UnionGenerator : IIncrementalGenerator {
             stringBuilder.AppendLine("        value = default;");
             stringBuilder.AppendLine("        return false;");
             stringBuilder.AppendLine("    }");
-            stringBuilder.AppendLine($"    public static implicit operator {unionObject.StructName}({typeSymbol} value) => new {unionObject.StructName}() {{");
+            stringBuilder.AppendLine($"    public static implicit operator {unionObject.GetStructClassName()}({typeSymbol} value) => new {unionObject.GetStructClassName()}() {{");
             stringBuilder.AppendLine("        Value = value,");
             stringBuilder.AppendLine($"        {isAlias} = true");
             stringBuilder.AppendLine("    };");

@@ -15,7 +15,7 @@ public readonly struct UnionObject(string structName, string nameSpace, Dictiona
     public Dictionary<ITypeSymbol, string?> TypesWithAliases { get; } = typesWithAliases;
     public ImmutableArray<string> TypeParameters { get; } = typeParameters;
 
-    public string GetStructClassName => TypeParameters.Length > 0
+    public string GetStructClassName() => TypeParameters.Length > 0
         ? $"{StructName}<{string.Join(", ", TypeParameters)}>"
         : StructName;
         
