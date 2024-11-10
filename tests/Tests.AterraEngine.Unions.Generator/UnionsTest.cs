@@ -5,18 +5,19 @@ using AterraEngine.Unions;
 using AterraEngine.Unions.Generator;
 using JetBrains.Annotations;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Tests.AterraEngine.Unions.Generator;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests, UnionGenerator> {
+public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
     protected override Type[] ReferenceTypes { get; } = [
         typeof(object),
         typeof(IUnion<>),
         typeof(UnionAliasesAttribute),
-        typeof(ValueTuple) // For tuples
+        typeof(ValueTuple), // For tuples
     ];
 
     [Theory]
@@ -25,17 +26,18 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
     // [InlineData(SucceededOrFalseInput, SucceededOrFalseOutput)]
     // [InlineData(NothingOrSomethingInput, NothingOrSomethingOutput)]
     // [InlineData(TrueFalseOrAliasInput, TrueFalseOrAliasOutput)]
-    public void TestText(string inputText, string expectedOutput) {
-        TestGenerator(inputText, expectedOutput, predicate: result => result.HintName.EndsWith("_Union.g.cs"));
+    public async Task TestText(string inputText, string expectedOutput) {
+        await TestGeneratorAsync(inputText, expectedOutput, predicate: result => result.HintName.EndsWith("_Union.g.cs"));
     }
 
     #region Original Test
     [LanguageInjection("csharp")] private const string TrueOrFalseInput = """
+        using AterraEngine.Unions;
         namespace TestNamespace {
             public struct True;
             public struct False;
             
-            public readonly partial struct TrueOrFalse() : AterraEngine.Unions.IUnion<True, False> {
+            public readonly partial struct TrueOrFalse() : IUnion<True, False> {
                 public static implicit operator TrueOrFalse(bool value) => new() {
                     Value = value,
                     IsTrue = value,

@@ -3,12 +3,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using AterraEngine.Unions;
 
-namespace Tests.AterraEngine.Unions;
+namespace Tests.AterraEngine.Unions.Unions;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class TrueOrFalseUnionUnitTests {
+public class TrueOrFalseTests {
     [Fact]
     public void Test_UnionHasTrue() {
         TrueOrFalse union = new True();

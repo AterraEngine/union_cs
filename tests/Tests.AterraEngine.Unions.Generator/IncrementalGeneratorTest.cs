@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Tests.AterraEngine.Unions.Generator;
@@ -13,29 +14,39 @@ namespace Tests.AterraEngine.Unions.Generator;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public abstract class IncrementalGeneratorTest<TTest, TGenerator> where TGenerator : IIncrementalGenerator, new() {
+public abstract class IncrementalGeneratorTest<TGenerator> where TGenerator : IIncrementalGenerator, new() {
     protected abstract Type[] ReferenceTypes { get; }
 
-    protected void TestGenerator(string input, string expectedOutput, Func<GeneratedSourceResult, bool> predicate) {
-        var generator = new TGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator.AsSourceGenerator());
+    protected async Task TestGeneratorAsync(string input, string expectedOutput, Func<GeneratedSourceResult, bool> predicate) {
+        using var workspace = new AdhocWorkspace();
+        
+        Project project = workspace.CurrentSolution
+            .AddProject("TestProject", "TestProject.dll", "C#")
+            .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                .WithPlatform(Platform.AnyCpu)
+                .WithOptimizationLevel(OptimizationLevel.Release)
+            )
+            .WithParseOptions(new CSharpParseOptions(LanguageVersion.Latest));
 
-        var compilation = CSharpCompilation.Create(
-            typeof(TTest).Name,
-            [CSharpSyntaxTree.ParseText(input)],
-            ReferenceTypes.Select(t => MetadataReference.CreateFromFile(t.Assembly.Location)).ToArray(),
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+        project = project.AddDocument("Test.cs", input).Project;
+        project = ReferenceTypes.Aggregate(
+            project, 
+            (current, type) => current.AddMetadataReference(MetadataReference.CreateFromFile(type.Assembly.Location))
         );
 
-        GeneratorDriverRunResult driverRunResult = driver.RunGenerators(compilation).GetRunResult();
-
-        Assert.NotEmpty(driverRunResult.GeneratedTrees);
-        foreach (Diagnostic diagnostic in driverRunResult.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)) {
+        Compilation? compilation = await project.GetCompilationAsync();
+        Assert.NotNull(compilation);
+            
+        var driver = CSharpGeneratorDriver.Create(new TGenerator());
+        GeneratorDriverRunResult runResult = driver.RunGenerators(compilation).GetRunResult();
+            
+        Assert.NotEmpty(runResult.GeneratedTrees);
+        foreach (Diagnostic diagnostic in runResult.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)) {
             Debug.WriteLine($"Error Diagnostic: {diagnostic.GetMessage()}");
             Console.WriteLine($"Error Diagnostic: {diagnostic.GetMessage()}");
         }
 
-        GeneratedSourceResult? generatedSource = driverRunResult.Results
+        GeneratedSourceResult? generatedSource = runResult.Results
             .SelectMany(result => result.GeneratedSources)
             .SingleOrDefault(predicate);
 

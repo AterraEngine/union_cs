@@ -22,7 +22,6 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\AterraEngine.Unions\AterraEngine.Unions.csproj" />
         <ProjectReference Include="..\..\src\AterraEngine.Unions.Generator\AterraEngine.Unions.Generator.csproj" />
-        <ProjectReference Include="..\AterraEngine.Unions.Generator\AterraEngine.Unions.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
 
