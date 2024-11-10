@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using AterraEngine.Unions;
-using System.Reflection;
 
 namespace Tests.AterraEngine.Unions;
 
@@ -10,12 +9,6 @@ namespace Tests.AterraEngine.Unions;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class TrueOrFalseUnionUnitTests {
-    [Fact]
-    public void Test_UnionGeneratorAttribute() {
-        var attribute = typeof(TrueOrFalse).GetCustomAttribute<UnionGeneratorAttribute>();
-        Assert.NotNull(attribute);
-    }
-
     [Fact]
     public void Test_UnionHasTrue() {
         TrueOrFalse union = new True();

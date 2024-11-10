@@ -23,7 +23,13 @@ public class UnionGenerator : IIncrementalGenerator {
                 predicate: (node, _) => node is StructDeclarationSyntax { BaseList: not null },
                 GatherUnionStructInfo)
             .Where(info => info is not null)
-            .Collect()!;
+            .Select((info, _) => new UnionObject(
+                info?.StructName!,
+                info?.Namespace!,
+                info?.TypesWithAliases!,
+                (ImmutableArray<string>)info?.TypeParameters!)
+            )
+            .Collect();
 
         // Register the source output
         context.RegisterSourceOutput(context.CompilationProvider.Combine(unionStructs), GenerateSources);
@@ -34,25 +40,34 @@ public class UnionGenerator : IIncrementalGenerator {
         if (context.SemanticModel.GetDeclaredSymbol(structDeclaration) is not {} structSymbol) return null;
 
         // Check if the struct implements IUnion<>
-        INamedTypeSymbol? iUnionInterface = structSymbol.Interfaces.FirstOrDefault(i => i.Name.Equals("IUnion") && i.IsGenericType);
+        var iUnionInterface = structSymbol.Interfaces.FirstOrDefault(i => i.Name.Equals("IUnion") && i.IsGenericType);
         if (iUnionInterface is null) return null;
 
         // Extract the type arguments from IUnion<>
-        ImmutableArray<ITypeSymbol> typeArguments = iUnionInterface.TypeArguments.ToImmutableArray();
+        var typeArguments = iUnionInterface.TypeArguments.ToImmutableArray();
 
         // Fetch aliases from the UnionAliases attribute
         AttributeData? aliasAttributeData = structSymbol.GetAttributes()
             .FirstOrDefault(attr => attr.AttributeClass?.Name == "UnionAliasesAttribute");
 
         Dictionary<ITypeSymbol, string?> typesWithAliases = ExtractTypesWithAliases(aliasAttributeData, typeArguments);
-        return new UnionObject(structSymbol.Name, structSymbol.ContainingNamespace.ToDisplayString(), typesWithAliases);
+
+        // Collect generic type parameters if present
+        var genericTypeParameters = structSymbol.TypeParameters;
+
+        return new UnionObject(
+            structSymbol.Name,
+            structSymbol.ContainingNamespace.ToDisplayString(),
+            typesWithAliases,
+            genericTypeParameters.Select(tp => tp.ToDisplayString()).ToImmutableArray()
+        );
     }
 
     private static Dictionary<ITypeSymbol, string?> ExtractTypesWithAliases(AttributeData? aliasAttributeData, ImmutableArray<ITypeSymbol> typeArguments) {
         var aliases = new List<string?>(new string?[typeArguments.Length]);
 
-        if (aliasAttributeData is { ConstructorArguments.Length: > 0 }) {
-            ImmutableArray<TypedConstant> values = aliasAttributeData.ConstructorArguments.FirstOrDefault().Values ;
+        if (aliasAttributeData != null && aliasAttributeData.ConstructorArguments.Length > 0) {
+            ImmutableArray<TypedConstant> values = aliasAttributeData.ConstructorArguments[0].Values;
             for (int i = 0; i < values.Length; i++) {
                 aliases[i] = (string?)values[i].Value;
             }
@@ -67,10 +82,9 @@ public class UnionGenerator : IIncrementalGenerator {
     }
 
     private static void GenerateSources(SourceProductionContext context, (Compilation, ImmutableArray<UnionObject>) source) {
-        // Compilation? compilation = source.Item1;
         ImmutableArray<UnionObject> classDeclarations = source.Item2;
 
-        foreach (UnionObject? unionInfo in classDeclarations) {
+        foreach (UnionObject unionInfo in classDeclarations) {
             context.AddSource($"{unionInfo.Namespace}.{unionInfo.StructName}_Union.g.cs", GenerateUnionCode(unionInfo));
         }
     }
@@ -82,14 +96,14 @@ public class UnionGenerator : IIncrementalGenerator {
         var namespaces = new HashSet<string> { "System" };
         namespaces.UnionWith(unionObject.TypesWithAliases.Keys
             .Select(type => type.ContainingNamespace?.ToDisplayString())
-            .Where(ns => !string.IsNullOrEmpty(ns))!);
+            .Where(ns => !string.IsNullOrEmpty(ns) && ns != unionObject.Namespace)!) ;
 
         foreach (string? ns in namespaces) {
             stringBuilder.AppendLine($"using {ns};");
         }
 
-        stringBuilder.AppendLine($"namespace {unionObject.Namespace};");
-        stringBuilder.AppendLine($"public readonly partial struct {unionObject.StructName} {{");
+        stringBuilder.Append($"namespace {unionObject.Namespace};\n");
+        stringBuilder.AppendLine($"public readonly partial struct {unionObject.GetStructClassName} {{");
         stringBuilder.AppendLine("    public object Value { get; init; } = default!;");
 
         foreach (KeyValuePair<ITypeSymbol, string?> kvp in unionObject.TypesWithAliases) {
@@ -113,6 +127,7 @@ public class UnionGenerator : IIncrementalGenerator {
         }
 
         stringBuilder.AppendLine("}");
+
         return stringBuilder.ToString();
     }
 
