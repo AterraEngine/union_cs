@@ -14,7 +14,7 @@ namespace Tests.AterraEngine.Unions.Generator;
 public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests, UnionGenerator> {
     protected override Type[] ReferenceTypes { get; } = [
         typeof(object),
-        typeof(UnionGeneratorAttribute),
+        typeof(IUnion<>),
         typeof(UnionAliasesAttribute),
         typeof(ValueTuple)// For tuples
     ];
@@ -38,8 +38,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
         public struct True;
         public struct False;
 
-        [AterraEngine.Unions.UnionGenerator<True, False>]
-        public readonly partial struct TrueOrFalse() {
+        public readonly partial struct TrueOrFalse() : AterraEngine.Unions.IUnion<True, False>{
             public static implicit operator TrueOrFalse(bool value) => new() {
                 Value = value,
                 IsTrue = value,
@@ -98,8 +97,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
         public struct None;
         public struct False;
                 
-        [AterraEngine.Unions.UnionGenerator<(Success<string>, None), False>]
-        public readonly partial struct TupleOrFalse();
+        public readonly partial struct TupleOrFalse() : AterraEngine.Unions.IUnion<(Success<string>, None), False>;
         """;
 
     [LanguageInjection("csharp")] private const string TupleOrFalseOutput = """
@@ -151,9 +149,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
         public struct None;
         public struct False;
 
-        [AterraEngine.Unions.UnionGenerator<(Success<string>, None), False>()]
         [AterraEngine.Unions.UnionAliases(aliasT0: "Succeeded")
-        public readonly partial struct TupleOrFalse();
+        public readonly partial struct TupleOrFalse() : AterraEngine.Unions.IUnion<(Success<string>, None), False>;
         """;
 
     [LanguageInjection("csharp")] private const string SucceededOrFalseOutput = """
@@ -202,9 +199,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
         public struct True;
         public struct False;
 
-        [AterraEngine.Unions.UnionGenerator<True, False>()]
         [AterraEngine;Unions.UnionAliases(aliasT0: "Nothing", aliasT1: "Something")]
-        public readonly partial struct NothingOrSomething();
+        public readonly partial struct NothingOrSomething() : AterraEngine.Unions.IUnion<True, False>;
         """;
 
     [LanguageInjection("csharp")] private const string NothingOrSomethingOutput = """
@@ -254,9 +250,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGeneratorTests,
         public struct False;
         public struct Done;
 
-        [AterraEngine.Unions.UnionGenerator<True, False, Done>()]
         [AterraEngine.Unions.UnionAliases(aliasT2: "Alias")]
-        public readonly partial struct TrueFalseOrAlias();
+        public readonly partial struct TrueFalseOrAlias() : AterraEngine.Unions.IUnion<True, False, Done>;
         """;
 
     [LanguageInjection("csharp")] private const string TrueFalseOrAliasOutput = """

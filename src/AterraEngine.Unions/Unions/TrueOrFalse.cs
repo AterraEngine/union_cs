@@ -6,5 +6,4 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[UnionGenerator<True, False>]
-public readonly partial struct TrueOrFalse();
+public readonly partial struct TrueOrFalse() : IUnion<True, False>;

@@ -6,4 +6,4 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public readonly partial struct ManyOneNoneOrError<TValue, TError> : IUnion<Many<TValue>, One<TValue>, None, Error<TError>>;
+public readonly partial struct ManyOneNoneOrError<TValue, TError>() : IUnion<Many<TValue>, One<TValue>, None, Error<TError>>;

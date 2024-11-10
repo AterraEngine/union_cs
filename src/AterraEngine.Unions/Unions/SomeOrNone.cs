@@ -6,4 +6,4 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public readonly partial struct SomeOrNone<T> : IUnion<Some<T>, None>;
+public readonly partial struct SomeOrNone<T>() : IUnion<Some<T>, None>;

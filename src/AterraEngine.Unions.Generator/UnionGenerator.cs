@@ -16,15 +16,12 @@ namespace AterraEngine.Unions.Generator;
 // ---------------------------------------------------------------------------------------------------------------------
 [Generator(LanguageNames.CSharp)]
 public class UnionGenerator : IIncrementalGenerator {
-    private const string UnionGeneratorAttributeName = "AterraEngine.Unions.UnionGeneratorAttribute";
-    private const string UnionGeneratorAttributeNameShort = "UnionGeneratorAttribute";
-
     public void Initialize(IncrementalGeneratorInitializationContext context) {
-        // Detect types with the UnionGenerator attribute
+        // Detect types with the IUnion<> interface
         IncrementalValueProvider<ImmutableArray<UnionObject>> unionStructs = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: (node, _) => node is StructDeclarationSyntax { AttributeLists.Count: > 0 },
-                GetUnionStructInfo)
+                predicate: (node, _) => node is StructDeclarationSyntax { BaseList: not null },
+                GatherUnionStructInfo)
             .Where(info => info is not null)
             .Collect()!;
 
@@ -32,66 +29,46 @@ public class UnionGenerator : IIncrementalGenerator {
         context.RegisterSourceOutput(context.CompilationProvider.Combine(unionStructs), GenerateSources);
     }
 
-    private static UnionObject? GetUnionStructInfo(GeneratorSyntaxContext context, CancellationToken cancellationToken) {
+    private static UnionObject? GatherUnionStructInfo(GeneratorSyntaxContext context, CancellationToken cancellationToken) {
         if (context.Node is not StructDeclarationSyntax structDeclaration) return null;
         if (context.SemanticModel.GetDeclaredSymbol(structDeclaration) is not {} structSymbol) return null;
 
-        IEnumerable<AttributeSyntax> attributes = structDeclaration.AttributeLists.SelectMany(al => al.Attributes);
-        AttributeSyntax? unionAttribute = attributes.FirstOrDefault(attr => {
-            SymbolInfo symbolInfo = context.SemanticModel.GetSymbolInfo(attr);
-            ISymbol? symbol = symbolInfo.Symbol ?? symbolInfo.CandidateSymbols.FirstOrDefault();
+        // Check if the struct implements IUnion<>
+        INamedTypeSymbol? iUnionInterface = structSymbol.Interfaces.FirstOrDefault(i => i.Name.Equals("IUnion") && i.IsGenericType);
+        if (iUnionInterface is null) return null;
 
-            if (symbol?.ContainingType?.ToDisplayString() is not {} containingType) return false;
+        // Extract the type arguments from IUnion<>
+        ImmutableArray<ITypeSymbol> typeArguments = iUnionInterface.TypeArguments.ToImmutableArray();
 
-            return containingType.StartsWith(UnionGeneratorAttributeName)
-                || containingType.StartsWith(UnionGeneratorAttributeNameShort);
-        });
-        if (unionAttribute is null) return null;
+        // Fetch aliases from the UnionAliases attribute
+        AttributeData? aliasAttributeData = structSymbol.GetAttributes()
+            .FirstOrDefault(attr => attr.AttributeClass?.Name == "UnionAliasesAttribute");
 
-        // Extract the attribute data
-        AttributeData? attributeData = structSymbol.GetAttributes()
-            .FirstOrDefault(attr => attr.AttributeClass?.ToDisplayString().StartsWith(UnionGeneratorAttributeName) == true);
-        if (attributeData is null) return null;
-
-        Dictionary<ITypeSymbol, string?> typesWithAliases = ExtractTypesWithAliases(unionAttribute, attributeData);
+        Dictionary<ITypeSymbol, string?> typesWithAliases = ExtractTypesWithAliases(aliasAttributeData, typeArguments);
         return new UnionObject(structSymbol.Name, structSymbol.ContainingNamespace.ToDisplayString(), typesWithAliases);
     }
 
-    private static Dictionary<ITypeSymbol, string?> ExtractTypesWithAliases(AttributeSyntax attributeSyntax, AttributeData attributeData) {
-        ImmutableArray<ITypeSymbol> types = attributeData.AttributeClass?.TypeArguments ?? ImmutableArray<ITypeSymbol>.Empty;
-        if (attributeSyntax.ArgumentList is null)
-            return types.ToDictionary<ITypeSymbol, ITypeSymbol, string?>(keySelector: t => t, elementSelector: _ => null, SymbolEqualityComparer.Default);
+    private static Dictionary<ITypeSymbol, string?> ExtractTypesWithAliases(AttributeData? aliasAttributeData, ImmutableArray<ITypeSymbol> typeArguments) {
+        var aliases = new List<string?>(new string?[typeArguments.Length]);
 
-        // Inits with nulls
-        var aliases = new List<string?>(new string?[types.Length]);
-
-        // Extract aliases based on "aliasT" prefix
-        foreach (AttributeArgumentSyntax argument in attributeSyntax.ArgumentList.Arguments) {
-            if (argument.NameColon?.Expression is not IdentifierNameSyntax identifierName) continue;
-
-            string alias = identifierName.Identifier.ValueText;
-            if (!alias.StartsWith("aliasT")) continue;
-
-            int index = int.Parse(alias.Substring(6));
-            if (argument.Expression is not LiteralExpressionSyntax literal) continue;
-
-            aliases[index] = literal.Token.ValueText;
+        if (aliasAttributeData is { ConstructorArguments.Length: > 0 }) {
+            ImmutableArray<TypedConstant> values = aliasAttributeData.ConstructorArguments.FirstOrDefault().Values ;
+            for (int i = 0; i < values.Length; i++) {
+                aliases[i] = (string?)values[i].Value;
+            }
         }
 
-        // Create a dictionary of type symbols with corresponding aliases, or default to null
-        return types.Zip(aliases, resultSelector: (type, alias) => (type, alias))
-            .ToDictionary<(ITypeSymbol type, string? alias), ITypeSymbol, string?>(keySelector: t => t.type, elementSelector: t => t.alias, SymbolEqualityComparer.Default);
+        return typeArguments.Zip(aliases, (type, alias) => (type, alias))
+            .ToDictionary<(ITypeSymbol type, string? alias), ITypeSymbol, string?>(
+                tuple => tuple.type,
+                tuple => tuple.alias,
+                SymbolEqualityComparer.Default
+            );
     }
 
-
     private static void GenerateSources(SourceProductionContext context, (Compilation, ImmutableArray<UnionObject>) source) {
-        Compilation? compilation = source.Item1;
+        // Compilation? compilation = source.Item1;
         ImmutableArray<UnionObject> classDeclarations = source.Item2;
-
-        if (compilation.GetTypeByMetadataName(UnionGeneratorAttributeName) is null) {
-            context.ReportDiagnostic(Diagnostic.Create(Rules.NoAttributesFound, Location.None));
-            return;
-        }
 
         foreach (UnionObject? unionInfo in classDeclarations) {
             context.AddSource($"{unionInfo.Namespace}.{unionInfo.StructName}_Union.g.cs", GenerateUnionCode(unionInfo));
@@ -101,13 +78,12 @@ public class UnionGenerator : IIncrementalGenerator {
     private static string GenerateUnionCode(UnionObject unionObject) {
         var stringBuilder = new StringBuilder();
         stringBuilder.AppendLine("// <auto-generated />");
-        // Collect required namespaces
+
         var namespaces = new HashSet<string> { "System" };
         namespaces.UnionWith(unionObject.TypesWithAliases.Keys
-            .Select(type => type.ContainingNamespace.ToDisplayString())
-            .Where(ns => !string.IsNullOrEmpty(ns)));
+            .Select(type => type.ContainingNamespace?.ToDisplayString())
+            .Where(ns => !string.IsNullOrEmpty(ns))!);
 
-        // Generate using directives for the namespaces
         foreach (string? ns in namespaces) {
             stringBuilder.AppendLine($"using {ns};");
         }
@@ -140,18 +116,18 @@ public class UnionGenerator : IIncrementalGenerator {
         return stringBuilder.ToString();
     }
 
-    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) => keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key, true);
+    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) => keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key);
 
-    private static string GetTypeAlias(ITypeSymbol type, bool skipGenerics = false) {
+    private static string GetTypeAlias(ITypeSymbol type) {
         if (type is not INamedTypeSymbol namedType) return type.Name;
 
         if (namedType.IsTupleType) {
-            return "TupleOf" + string.Join("And", namedType.TupleElements.Select(e => GetTypeAlias(e.Type, skipGenerics)));
+            return "TupleOf" + string.Join("And", namedType.TupleElements.Select(e => GetTypeAlias(e.Type)));
         }
 
         string name = namedType.Name;
-        if (namedType.IsGenericType && !skipGenerics) {
-            name += $"Of{string.Join("And", namedType.TypeArguments.Select(ta => GetTypeAlias(ta, skipGenerics)))}>";
+        if (namedType.IsGenericType) {
+            name += $"Of{string.Join("And", namedType.TypeArguments.Select(GetTypeAlias))}";
         }
 
         return name;
