@@ -40,11 +40,11 @@ public class UnionGenerator : IIncrementalGenerator {
         if (context.SemanticModel.GetDeclaredSymbol(structDeclaration) is not {} structSymbol) return null;
 
         // Check if the struct implements IUnion<>
-        var iUnionInterface = structSymbol.Interfaces.FirstOrDefault(i => i.Name.Equals("IUnion") && i.IsGenericType);
+        INamedTypeSymbol? iUnionInterface = structSymbol.Interfaces.FirstOrDefault(i => i.Name.Equals("IUnion") && i.IsGenericType);
         if (iUnionInterface is null) return null;
 
         // Extract the type arguments from IUnion<>
-        var typeArguments = iUnionInterface.TypeArguments.ToImmutableArray();
+        ImmutableArray<ITypeSymbol> typeArguments = iUnionInterface.TypeArguments.ToImmutableArray();
 
         // Fetch aliases from the UnionAliases attribute
         AttributeData? aliasAttributeData = structSymbol.GetAttributes()
@@ -53,7 +53,7 @@ public class UnionGenerator : IIncrementalGenerator {
         Dictionary<ITypeSymbol, string?> typesWithAliases = ExtractTypesWithAliases(aliasAttributeData, typeArguments);
 
         // Collect generic type parameters if present
-        var genericTypeParameters = structSymbol.TypeParameters;
+        ImmutableArray<ITypeParameterSymbol> genericTypeParameters = structSymbol.TypeParameters;
 
         return new UnionObject(
             structSymbol.Name,
@@ -66,10 +66,9 @@ public class UnionGenerator : IIncrementalGenerator {
     private static Dictionary<ITypeSymbol, string?> ExtractTypesWithAliases(AttributeData? aliasAttributeData, ImmutableArray<ITypeSymbol> typeArguments) {
         var aliases = new List<string?>(new string?[typeArguments.Length]);
 
-        if (aliasAttributeData != null && aliasAttributeData.ConstructorArguments.Length > 0) {
-            ImmutableArray<TypedConstant> values = aliasAttributeData.ConstructorArguments[0].Values;
-            for (int i = 0; i < values.Length; i++) {
-                aliases[i] = (string?)values[i].Value;
+        if (aliasAttributeData is { ConstructorArguments : { Length: > 0 } arguments }) {
+            for (int i = 0; i < typeArguments.Length; i++) {
+                aliases[i] = arguments[i].Value as string;
             }
         }
 
@@ -102,7 +101,7 @@ public class UnionGenerator : IIncrementalGenerator {
             stringBuilder.AppendLine($"using {ns};");
         }
 
-        stringBuilder.Append($"namespace {unionObject.Namespace};\n");
+        stringBuilder.AppendLine($"namespace {unionObject.Namespace};");
         stringBuilder.AppendLine($"public readonly partial struct {unionObject.GetStructClassName()} {{");
         stringBuilder.AppendLine("    public object Value { get; init; } = default!;");
 
@@ -131,7 +130,9 @@ public class UnionGenerator : IIncrementalGenerator {
         return stringBuilder.ToString();
     }
 
-    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) => keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key);
+    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) {
+        return keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key);
+    }
 
     private static string GetTypeAlias(ITypeSymbol type) {
         if (type is not INamedTypeSymbol namedType) return type.Name;
