@@ -66,6 +66,7 @@ public class UnionGenerator : IIncrementalGenerator {
     private static Dictionary<ITypeSymbol, string?> ExtractTypesWithAliases(AttributeData? aliasAttributeData, ImmutableArray<ITypeSymbol> typeArguments) {
         var aliases = new List<string?>(new string?[typeArguments.Length]);
 
+        // ReSharper disable once InvertIf
         if (aliasAttributeData is { ConstructorArguments : { Length: > 0 } arguments }) {
             for (int i = 0; i < typeArguments.Length; i++) {
                 aliases[i] = arguments[i].Value as string;
@@ -95,7 +96,7 @@ public class UnionGenerator : IIncrementalGenerator {
         var namespaces = new HashSet<string> { "System" };
         namespaces.UnionWith(unionObject.TypesWithAliases.Keys
             .Select(type => type.ContainingNamespace?.ToDisplayString())
-            .Where(ns => !string.IsNullOrEmpty(ns) && ns != unionObject.Namespace)!) ;
+            .Where(ns => !string.IsNullOrEmpty(ns) && ns != unionObject.Namespace)!);
 
         foreach (string? ns in namespaces) {
             stringBuilder.AppendLine($"using {ns};");
@@ -131,6 +132,9 @@ public class UnionGenerator : IIncrementalGenerator {
     }
 
     private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) {
+        if (keyValuePair is { Key: INamedTypeSymbol { IsGenericType: true } namedType, Value: null }) {
+            return namedType.Name;
+        }
         return keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key);
     }
 
