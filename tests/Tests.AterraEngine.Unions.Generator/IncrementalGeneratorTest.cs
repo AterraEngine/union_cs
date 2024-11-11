@@ -27,7 +27,6 @@ public abstract class IncrementalGeneratorTest<TGenerator> where TGenerator : II
             .AddProject("TestProject", "TestProject.dll", "C#")
             .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithPlatform(Platform.AnyCpu)
-                .WithOptimizationLevel(OptimizationLevel.Release)
             )
             .WithParseOptions(new CSharpParseOptions(LanguageVersion.Latest));
 

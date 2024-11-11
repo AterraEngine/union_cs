@@ -44,7 +44,7 @@ public class UnionGenerator : IIncrementalGenerator {
         if (iUnionInterface is null) return null;
 
         // Extract the type arguments from IUnion<>
-        ImmutableArray<ITypeSymbol> typeArguments = iUnionInterface.TypeArguments.ToImmutableArray();
+        ImmutableArray<ITypeSymbol> typeArguments = [..iUnionInterface.TypeArguments];
 
         // Fetch aliases from the UnionAliases attribute
         AttributeData? aliasAttributeData = structSymbol.GetAttributes()
@@ -59,16 +59,17 @@ public class UnionGenerator : IIncrementalGenerator {
             structSymbol.Name,
             structSymbol.ContainingNamespace.ToDisplayString(),
             typesWithAliases,
-            genericTypeParameters.Select(tp => tp.ToDisplayString()).ToImmutableArray()
+            [..genericTypeParameters.Select(tp => tp.ToDisplayString())]
         );
     }
 
     private static Dictionary<ITypeSymbol, string?> ExtractTypesWithAliases(AttributeData? aliasAttributeData, ImmutableArray<ITypeSymbol> typeArguments) {
-        var aliases = new List<string?>(new string?[typeArguments.Length]);
+        int maxLength = typeArguments.Length;
+        string?[] aliases = new string?[maxLength];
 
         // ReSharper disable once InvertIf
         if (aliasAttributeData is { ConstructorArguments : { Length: > 0 } arguments }) {
-            for (int i = 0; i < typeArguments.Length; i++) {
+            for (int i = 0; i < maxLength; i++) {
                 aliases[i] = arguments[i].Value as string;
             }
         }
