@@ -32,12 +32,11 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
 
     #region Original Test
     [LanguageInjection("csharp")] private const string TrueOrFalseInput = """
-        using AterraEngine.Unions;
         namespace TestNamespace {
             public struct True;
             public struct False;
             
-            public readonly partial struct TrueOrFalse() : IUnion<True, False> {
+            public readonly partial struct TrueOrFalse() : AterraEngine.Unions.IUnion<True, False> {
                 public static implicit operator TrueOrFalse(bool value) => new() {
                     Value = value,
                     IsTrue = value,

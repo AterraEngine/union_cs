@@ -20,6 +20,9 @@ public abstract class IncrementalGeneratorTest<TGenerator> where TGenerator : II
     protected async Task TestGeneratorAsync(string input, string expectedOutput, Func<GeneratedSourceResult, bool> predicate) {
         using var workspace = new AdhocWorkspace();
         
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(new TGenerator())
+            .WithUpdatedParseOptions(new CSharpParseOptions(LanguageVersion.Latest));
+        
         Project project = workspace.CurrentSolution
             .AddProject("TestProject", "TestProject.dll", "C#")
             .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
@@ -36,8 +39,7 @@ public abstract class IncrementalGeneratorTest<TGenerator> where TGenerator : II
 
         Compilation? compilation = await project.GetCompilationAsync();
         Assert.NotNull(compilation);
-            
-        var driver = CSharpGeneratorDriver.Create(new TGenerator());
+        
         GeneratorDriverRunResult runResult = driver.RunGenerators(compilation).GetRunResult();
             
         Assert.NotEmpty(runResult.GeneratedTrees);
