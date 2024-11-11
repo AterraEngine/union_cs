@@ -4,11 +4,32 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        
+        <IsPackable>true</IsPackable>
+        <PackageId>AterraEngine.Unions</PackageId> <!-- Main package name -->
+        <Version>0.1.0-alpha</Version> <!-- Package version -->
+        <Authors>Anna Sas</Authors>
+        <Description>A small package allowing you to use Union Structs</Description>
+        <PackageProjectUrl>https://github.com/AterraEngine/union_cs/</PackageProjectUrl>
+        <PackageTags>discriminated unions</PackageTags>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <DebugType>embedded</DebugType>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AterraEngine.Unions.Generator\AterraEngine.Unions.Generator.csproj" 
-                          OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <None Include="..\..\LICENSE" Pack="true" PackagePath=""/>
+        <None Include="..\..\README.md" Pack="true" PackagePath=""/>
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- ProjectReference for the generator as an analyzer -->
+        <ProjectReference Include="..\AterraEngine.Unions.Generator\AterraEngine.Unions.Generator.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"
+        />
+    </ItemGroup>
 </Project>

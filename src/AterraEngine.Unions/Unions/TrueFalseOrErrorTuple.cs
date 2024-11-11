@@ -6,6 +6,5 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public readonly struct Many<T>(IEnumerable<T> values) {
-    public readonly T[] Values = values as T[] ?? values.ToArray();
-}
+[UnionAliases(aliasT2:"ErrorTuple")]
+public readonly partial struct TrueFalseOrErrorTuple() : IUnion<True, False, (Error<string>, Type)>;
