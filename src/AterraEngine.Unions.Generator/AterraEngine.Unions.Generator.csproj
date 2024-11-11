@@ -11,10 +11,10 @@
 
         <IsPackable>true</IsPackable>
         <PackageId>AterraEngine.Unions.Generators</PackageId>
-        <Version>0.2.0-alpha</Version>
+        <Version>0.2.1-alpha</Version>
         <Authors>Anna Sas</Authors>
         <Description>The Generator for AterraEngine.Unions</Description>
-        <PackageProjectUrl>https://github.com/AterraEngine/union_cs/</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/AterraEngine/unions-cs/</PackageProjectUrl>
         <PackageTags>discriminated unions;rosyln;generator</PackageTags>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -30,12 +30,11 @@
     </ItemGroup>
     
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
     </ItemGroup>
 
 </Project>

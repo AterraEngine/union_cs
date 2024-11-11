@@ -7,10 +7,10 @@
         
         <IsPackable>true</IsPackable>
         <PackageId>AterraEngine.Unions</PackageId> <!-- Main package name -->
-        <Version>0.2.0-alpha</Version> <!-- Package version -->
+        <Version>0.2.1-alpha</Version> <!-- Package version -->
         <Authors>Anna Sas</Authors>
         <Description>A small package allowing you to use Union Structs</Description>
-        <PackageProjectUrl>https://github.com/AterraEngine/union_cs/</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/AterraEngine/unions-cs/</PackageProjectUrl>
         <PackageTags>discriminated unions</PackageTags>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
