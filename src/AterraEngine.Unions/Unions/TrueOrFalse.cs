@@ -6,4 +6,6 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public readonly partial struct TrueOrFalse() : IUnion<True, False>;
+public readonly partial struct TrueOrFalse() : IUnion<True, False> {
+    public static implicit operator TrueOrFalse(bool value) => value ? new True() : new False();
+}

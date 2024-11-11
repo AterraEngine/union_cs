@@ -6,4 +6,6 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public readonly partial struct SomeOrNone<T>() : IUnion<Some<T>, None>;
+public readonly partial struct SomeOrNone<T>() : IUnion<Some<T>, None>{
+    public static implicit operator SomeOrNone<T>(T? value) => value is not null ? new Some<T>([value]) : new None();
+}
