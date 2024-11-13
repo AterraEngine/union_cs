@@ -4,7 +4,7 @@ A Union Library for DotNet
 ## Overview
 
 `AterraEngine.Unions` is a comprehensive library for creating and managing union types in .NET.
-It leverages the latest features of C# 12.0 and .NET 8.0 to provide a robust and efficient framework for representing multiple and diverse data types as a single unit.
+It leverages the latest features of C# 13.0 and .NET 9.0 to provide a robust and efficient framework for representing multiple and diverse data types as a single unit.
 The package was inspired by the OneOf package.
 
 ### Features
