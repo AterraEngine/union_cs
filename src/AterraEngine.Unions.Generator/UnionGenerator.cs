@@ -109,7 +109,7 @@ public class UnionGenerator : IIncrementalGenerator {
 
         foreach (KeyValuePair<ITypeSymbol, string?> kvp in unionObject.TypesWithAliases) {
             ITypeSymbol? typeSymbol = kvp.Key;
-            string alias = kvp.Value ?? GetAlias(kvp);
+            string alias = GetAlias(kvp);
             string isAlias = $"Is{alias}";
 
             stringBuilder.AppendLine($"    #region {alias}");
@@ -136,7 +136,9 @@ public class UnionGenerator : IIncrementalGenerator {
         return stringBuilder.ToString();
     }
 
-    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) => keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key);
+    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) => 
+        keyValuePair.Value 
+        ?? GetTypeAlias(keyValuePair.Key);
 
     private static string GetTypeAlias(ITypeSymbol type) {
         switch (type) {

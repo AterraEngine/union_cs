@@ -16,14 +16,7 @@ public readonly partial struct TupleOrEmpty() : IUnion<(True, Success<string>), 
 
 [UnionAliases(aliasT0: "Nothing", aliasT1: "Something")]
 public readonly partial struct NothingOrSomething() : IUnion<True, False> {
-    public static implicit operator NothingOrSomething(bool value) {
-        return new NothingOrSomething() {
-            Value = value ? new True() : new False(),
-            IsNothing = value,
-            IsSomething = !value
-        };
-    }
-    
+    public static implicit operator NothingOrSomething(bool value) => value ? new True() : new False();
 }
 
 [UnionAliases(aliasT2: "Alias")]
