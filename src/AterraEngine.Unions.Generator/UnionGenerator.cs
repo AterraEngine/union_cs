@@ -83,8 +83,7 @@ public class UnionGenerator : IIncrementalGenerator {
     }
 
     private static void GenerateSources(SourceProductionContext context, (Compilation, ImmutableArray<UnionObject>) source) {
-        ImmutableArray<UnionObject> classDeclarations = source.Item2;
-
+        (_, ImmutableArray<UnionObject> classDeclarations) = source;
         foreach (UnionObject unionInfo in classDeclarations) {
             context.AddSource($"{unionInfo.Namespace}.{unionInfo.StructName}_Union.g.cs", GenerateUnionCode(unionInfo));
         }
@@ -103,32 +102,37 @@ public class UnionGenerator : IIncrementalGenerator {
             stringBuilder.AppendLine($"using {ns};");
         }
 
-        stringBuilder.AppendLine($"namespace {unionObject.Namespace};");
-        stringBuilder.AppendLine($"public readonly partial struct {unionObject.GetStructClassName()} {{");
-        stringBuilder.AppendLine("    public object Value { get; init; } = default!;");
+        stringBuilder
+            .AppendLine($"namespace {unionObject.Namespace};")
+            .AppendLine($"public readonly partial struct {unionObject.GetStructClassName()} {{")
+            .AppendLine("    public object Value { get; init; } = default!;")
+            .AppendLine();
 
         foreach (KeyValuePair<ITypeSymbol, string?> kvp in unionObject.TypesWithAliases) {
             ITypeSymbol? typeSymbol = kvp.Key;
             string alias = GetAlias(kvp);
             string isAlias = $"Is{alias}";
+            string asAlias = $"As{alias}";
 
-            stringBuilder.AppendLine($"    #region {alias}");
-            stringBuilder.AppendLine($"    public bool {isAlias} {{ get; init; }} = false;");
-            stringBuilder.AppendLine($"    public {typeSymbol} As{alias} {{get; init;}} = default!;");
-            stringBuilder.AppendLine($"    public bool TryGetAs{alias}(out {typeSymbol} value) {{");
-            stringBuilder.AppendLine($"        if ({isAlias}) {{");
-            stringBuilder.AppendLine($"            value = As{alias};");
-            stringBuilder.AppendLine( "            return true;");
-            stringBuilder.AppendLine( "        }");
-            stringBuilder.AppendLine( "        value = default;");
-            stringBuilder.AppendLine( "        return false;");
-            stringBuilder.AppendLine( "    }");
-            stringBuilder.AppendLine($"    public static implicit operator {unionObject.GetStructClassName()}({typeSymbol} value) => new {unionObject.GetStructClassName()}() {{");
-            stringBuilder.AppendLine( "        Value = value,");
-            stringBuilder.AppendLine($"        {isAlias} = true,");
-            stringBuilder.AppendLine($"        As{alias} = value");
-            stringBuilder.AppendLine( "    };");
-            stringBuilder.AppendLine( "    #endregion");
+            stringBuilder
+                .AppendLine($"    #region {alias}")
+                .AppendLine($"    public bool {isAlias} {{ get; init; }} = false;")
+                .AppendLine($"    public {typeSymbol} {asAlias} {{get; init;}} = default!;")
+                .AppendLine($"    public bool TryGet{asAlias}(out {typeSymbol} value) {{")
+                .AppendLine($"        if ({isAlias}) {{")
+                .AppendLine($"            value = {asAlias};")
+                .AppendLine( "            return true;")
+                .AppendLine( "        }")
+                .AppendLine( "        value = default;")
+                .AppendLine( "        return false;")
+                .AppendLine( "    }")
+                .AppendLine($"    public static implicit operator {unionObject.GetStructClassName()}({typeSymbol} value) => new {unionObject.GetStructClassName()}() {{")
+                .AppendLine( "        Value = value,")
+                .AppendLine($"        {isAlias} = true,")
+                .AppendLine($"        {asAlias} = value")
+                .AppendLine( "    };")
+                .AppendLine( "    #endregion")
+                .AppendLine();
         }
         
         stringBuilder.AppendLine("}");
@@ -136,14 +140,15 @@ public class UnionGenerator : IIncrementalGenerator {
         return stringBuilder.ToString();
     }
 
-    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) => 
-        keyValuePair.Value 
-        ?? GetTypeAlias(keyValuePair.Key);
-
+    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) => keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key);
     private static string GetTypeAlias(ITypeSymbol type) {
         switch (type) {
             case INamedTypeSymbol {IsTupleType: true } namedType: {
-                return string.Join("And", namedType.TupleElements.Select(e => GetTypeAlias(e.Type))) + "Tuple";
+                string stringConcat = string.Join(
+                    "And",
+                    namedType.TupleElements.Select(e => GetTypeAlias(e.Type))
+                );
+                return $"{stringConcat}Tuple";
             }
 
             case INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: > 0 } namedType: {
@@ -155,8 +160,8 @@ public class UnionGenerator : IIncrementalGenerator {
                     );
                 
                 return stringConcat.Length > 0 ?
-                    namedType.Name + $"Of{stringConcat}" :
-                    namedType.Name;
+                    $"{namedType.Name}Of{stringConcat}":
+                    namedType.Name; // It might be that all type parameters are generic, but we don't want to show that in the alias
             }
 
             case INamedTypeSymbol namedType: {
@@ -164,7 +169,7 @@ public class UnionGenerator : IIncrementalGenerator {
             }
 
             case IArrayTypeSymbol arrayType: {
-                return GetTypeAlias(arrayType.ElementType) + "Array";
+                return $"{GetTypeAlias(arrayType.ElementType)}Array";
             }
             
             default:
