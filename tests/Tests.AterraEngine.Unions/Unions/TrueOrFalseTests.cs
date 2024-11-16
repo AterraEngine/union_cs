@@ -62,4 +62,30 @@ public class TrueOrFalseTests {
         Assert.IsType<True>(union.Value);
         Assert.Equal(value, union.AsTrue);
     }
+
+    [Fact]
+    public void Test_SwitchCase_True() {
+        TrueOrFalse union = new True();
+        switch (union) {
+            case {IsTrue: true, AsTrue: var trueValue}: 
+                Assert.Equal(new True(), trueValue);
+                break;
+            case {IsFalse: true, AsFalse: var falseValue}: 
+                Assert.Equal(new False(), falseValue);
+                break;
+        }
+    }
+
+    [Fact]
+    public void Test_SwitchCase_False() {
+        TrueOrFalse union = new False();
+        switch (union) {
+            case {IsTrue: true, AsTrue: var trueValue}: 
+                Assert.Equal(new True(), trueValue);
+                break;
+            case {IsFalse: true, AsFalse: var falseValue}: 
+                Assert.Equal(new False(), falseValue);
+                break;
+        }
+    }
 }

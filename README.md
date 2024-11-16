@@ -64,6 +64,7 @@ if (union.TryGetAsError(out Error<T> value) {
 }
 ```
 
+Using `.Value` will incur boxing. If you want to avoid boxing, it is currently advised to use the `TryGetAs{TypeName}` method or a combination of `Is{TypeName}` and `As{Typename}` properties.
 ```csharp
 using AterraEngine.Unions;
 
@@ -74,7 +75,25 @@ switch (union.Value) {
     case None: //...
     case Error: //...
 }
+
+if (union.TryGetAsNone(out None value) {
+    // ...        
+}
 ```
+Another version of using the switch case would be like the following example.
+Although a little more cumbersome to write, it will do the same as the above example, without boxing.
+```csharp
+TrueOrFalse union = new False();
+switch (union) {
+    case {IsTrue: true, AsTrue: var trueValue}: 
+        Assert.Equal(new True(), trueValue);
+        break;
+    case {IsFalse: true, AsFalse: var falseValue}: 
+        Assert.Equal(new False(), falseValue);
+        break;
+}
+```
+
 
 Creating your own unions is easily done by installing `AterraEngine.Unions.Generators` and following the example:
 ```csharp
