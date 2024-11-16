@@ -111,6 +111,8 @@ public class UnionGenerator : IIncrementalGenerator {
             ITypeSymbol? typeSymbol = kvp.Key;
             string alias = kvp.Value ?? GetAlias(kvp);
             string isAlias = $"Is{alias}";
+
+            stringBuilder.AppendLine($"    #region {alias}");
             stringBuilder.AppendLine($"    public bool {isAlias} {{ get; init; }} = false;");
             stringBuilder.AppendLine($"    public {typeSymbol} As{alias} {{get; init;}} = default!;");
             stringBuilder.AppendLine($"    public bool TryGetAs{alias}(out {typeSymbol} value) {{");
@@ -126,34 +128,45 @@ public class UnionGenerator : IIncrementalGenerator {
             stringBuilder.AppendLine($"        {isAlias} = true,");
             stringBuilder.AppendLine($"        As{alias} = value");
             stringBuilder.AppendLine( "    };");
+            stringBuilder.AppendLine( "    #endregion");
         }
-
+        
         stringBuilder.AppendLine("}");
 
         return stringBuilder.ToString();
     }
 
-private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) {
-    return keyValuePair.Key switch {
-        INamedTypeSymbol { IsGenericType: true, IsTupleType : false } namedType => namedType.Name,
-        INamedTypeSymbol { IsGenericType: true, IsTupleType: true } namedTypeTuple => "TupleOf" + string.Join("And", namedTypeTuple.TupleElements.Select(e => GetTypeAlias(e.Type))),
-        _ => keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key)
-    };
-
-    }
+    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) => keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key);
 
     private static string GetTypeAlias(ITypeSymbol type) {
-        if (type is not INamedTypeSymbol namedType) return type.Name;
+        switch (type) {
+            case INamedTypeSymbol {IsTupleType: true } namedType: {
+                return string.Join("And", namedType.TupleElements.Select(e => GetTypeAlias(e.Type))) + "Tuple";
+            }
 
-        if (namedType.IsTupleType) {
-            return "TupleOf" + string.Join("And", namedType.TupleElements.Select(e => GetTypeAlias(e.Type)));
+            case INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: > 0 } namedType: {
+                string stringConcat = string.Join(
+                    "And",
+                    namedType.TypeArguments
+                        .Where(arg => arg is not ITypeParameterSymbol)
+                        .Select(GetTypeAlias)
+                    );
+                
+                return stringConcat.Length > 0 ?
+                    namedType.Name + $"Of{stringConcat}" :
+                    namedType.Name;
+            }
+
+            case INamedTypeSymbol namedType: {
+                return namedType.Name;
+            }
+
+            case IArrayTypeSymbol arrayType: {
+                return GetTypeAlias(arrayType.ElementType) + "Array";
+            }
+            
+            default:
+                return type.Name;
         }
-
-        string name = namedType.Name;
-        if (namedType.IsGenericType) {
-            name += $"Of{string.Join("And", namedType.TypeArguments.Select(GetTypeAlias))}";
-        }
-
-        return name;
     }
 }

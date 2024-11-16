@@ -9,7 +9,7 @@ namespace AterraEngine.Unions.Generator.Sample;
 public partial struct GenericUnion<T>() : IUnion<Success<T>, None, Error<string>> {
     public static implicit operator GenericUnion<T>(T value) => new() {
         Value = value,
-        IsSuccess = true
+        // IsSuccess = true
     };
 }
 
