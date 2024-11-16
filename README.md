@@ -133,3 +133,19 @@ class Program {
     }
 }
 ```
+
+### Benchmarks
+The following is a result of the benchmarks found at [Benchmarks.AterraEngine.Unions](tests/Benchmarks.AterraEngine.Unions).
+
+| Method                                                |      Mean |     Error |    StdDev | Ratio | RatioSD |   Gen0 | Allocated | Alloc Ratio |
+|-------------------------------------------------------|----------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
+| AterraEngineUnions_SuccessOrFailure_SwitchCase_Struct |  2.341 ns | 0.0718 ns | 0.1384 ns |  0.31 |    0.02 | 0.0014 |      24 B |        1.00 |
+| AterraEngineUnions_SuccessOrFailure_SwitchCase_Value  |  3.440 ns | 0.0536 ns | 0.0448 ns |  0.46 |    0.01 | 0.0014 |      24 B |        1.00 |
+| AterraEngineUnions_UnionT8_TryGetAs                   |  4.888 ns | 0.0106 ns | 0.0089 ns |  0.65 |    0.01 |      - |         - |        0.00 |
+| OneOf_SuccessOrFailure_SwitchCase_Value               |  5.573 ns | 0.0499 ns | 0.0467 ns |  0.74 |    0.01 | 0.0014 |      24 B |        1.00 |
+| AterraEngineUnions_UnionT8_SwitchCase_Value           |  7.262 ns | 0.0039 ns | 0.0034 ns |  0.96 |    0.01 |      - |         - |        0.00 |
+| AterraEngineUnions_TrueFalse_TryGetAsTrue             |  7.544 ns | 0.0894 ns | 0.0792 ns |  1.00 |    0.01 | 0.0014 |      24 B |        1.00 |
+| OneOfTrueFalse_TryGetAsTrue                           |  7.810 ns | 0.1197 ns | 0.1000 ns |  1.04 |    0.02 | 0.0038 |      64 B |        2.67 |
+| OneOf_OneOfT8_SwitchCase_Value                        |  8.746 ns | 0.0884 ns | 0.0738 ns |  1.16 |    0.02 | 0.0038 |      64 B |        2.67 |
+| OneOf_OneOfT8_TryGetAs                                | 11.956 ns | 0.1835 ns | 0.1627 ns |  1.58 |    0.03 | 0.0038 |      64 B |        2.67 |
+| Dunet_TrueFalse_MatchTrue                             | 21.764 ns | 0.1710 ns | 0.1428 ns |  2.89 |    0.03 | 0.0105 |     176 B |        7.33 |
