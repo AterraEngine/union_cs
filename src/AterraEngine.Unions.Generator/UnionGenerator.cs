@@ -112,19 +112,20 @@ public class UnionGenerator : IIncrementalGenerator {
             string alias = kvp.Value ?? GetAlias(kvp);
             string isAlias = $"Is{alias}";
             stringBuilder.AppendLine($"    public bool {isAlias} {{ get; init; }} = false;");
-            stringBuilder.AppendLine($"    public {typeSymbol} As{alias} => ({typeSymbol})Value;");
+            stringBuilder.AppendLine($"    public {typeSymbol} As{alias} {{get; init;}} = default!;");
             stringBuilder.AppendLine($"    public bool TryGetAs{alias}(out {typeSymbol} value) {{");
             stringBuilder.AppendLine($"        if ({isAlias}) {{");
             stringBuilder.AppendLine($"            value = As{alias};");
-            stringBuilder.AppendLine("            return true;");
-            stringBuilder.AppendLine("        }");
-            stringBuilder.AppendLine("        value = default;");
-            stringBuilder.AppendLine("        return false;");
-            stringBuilder.AppendLine("    }");
+            stringBuilder.AppendLine( "            return true;");
+            stringBuilder.AppendLine( "        }");
+            stringBuilder.AppendLine( "        value = default;");
+            stringBuilder.AppendLine( "        return false;");
+            stringBuilder.AppendLine( "    }");
             stringBuilder.AppendLine($"    public static implicit operator {unionObject.GetStructClassName()}({typeSymbol} value) => new {unionObject.GetStructClassName()}() {{");
-            stringBuilder.AppendLine("        Value = value,");
-            stringBuilder.AppendLine($"        {isAlias} = true");
-            stringBuilder.AppendLine("    };");
+            stringBuilder.AppendLine( "        Value = value,");
+            stringBuilder.AppendLine($"        {isAlias} = true,");
+            stringBuilder.AppendLine($"        As{alias} = value");
+            stringBuilder.AppendLine( "    };");
         }
 
         stringBuilder.AppendLine("}");
