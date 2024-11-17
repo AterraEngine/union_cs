@@ -65,7 +65,7 @@ public class DiscriminatedUnionsBenchmark {
     [Benchmark]
     public string? AterraEngineUnions_UnionT8_TryGetAs() {
         Union_T8 union = "value";
-        if (union.TryGetAsString(out string result)) return result;
+        if (union.TryGetAsString(out string? result)) return result;
         return null;
     }
 
