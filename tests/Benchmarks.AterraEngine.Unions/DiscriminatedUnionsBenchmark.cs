@@ -4,10 +4,6 @@
 using AterraEngine.Unions;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
-using CommandLine;
-using Dunet;
-using OneOf;
-using OneOf.Types;
 using None=AterraEngine.Unions.None;
 using True=AterraEngine.Unions.True;
 
@@ -24,14 +20,14 @@ namespace Benchmarks.AterraEngine.Unions;
 public class DiscriminatedUnionsBenchmark {
     [Benchmark(Baseline = true)]  // Makes this the baseline for comparisons
     public True? AterraEngineUnions_TrueFalse_TryGetAsTrue() {
-        global::AterraEngine.Unions.TrueOrFalse union = new True();
+        TrueOrFalse union = new True();
         if (union.TryGetAsTrue(out True result)) return result;
         return null;
     }
 
     [Benchmark]
-    public global::AterraEngine.Unions.Success<string>? AterraEngineUnions_SuccessOrFailure_SwitchCase_Struct() {
-        SuccessOrFailure<string, None> union = new global::AterraEngine.Unions.Success<string>("Something as success");
+    public Success<string>? AterraEngineUnions_SuccessOrFailure_SwitchCase_Struct() {
+        SuccessOrFailure<string, None> union = new Success<string>("Something as success");
         switch (union) {
             case { IsSuccess: true, AsSuccess: var successValue }: return successValue;
             case { IsFailure: true, AsFailure: var failureValue }: return null;
@@ -40,10 +36,10 @@ public class DiscriminatedUnionsBenchmark {
     }
     
     [Benchmark]
-    public global::AterraEngine.Unions.Success<string>? AterraEngineUnions_SuccessOrFailure_SwitchCase_Value() {
-        SuccessOrFailure<string, None> union = new global::AterraEngine.Unions.Success<string>("Something as success");
+    public Success<string>? AterraEngineUnions_SuccessOrFailure_SwitchCase_Value() {
+        SuccessOrFailure<string, None> union = new Success<string>("Something as success");
         switch (union.Value) {
-            case global::AterraEngine.Unions.Success<string> success: return success;
+            case Success<string> success: return success;
             case Failure<None>: return null;
             default: return default!;
         }
@@ -132,43 +128,3 @@ public class DiscriminatedUnionsBenchmark {
         return result!;
     }
 }
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Helper classes
-// ---------------------------------------------------------------------------------------------------------------------
-public readonly partial struct Union_T8() : IUnion<
-    bool,
-    int,
-    List<string>,
-    float,
-    double,
-    short,
-    Dictionary<int, bool>,
-    string
->;
-
-[GenerateOneOf]
-public partial class OneOf_T8 : OneOfBase<
-    bool,
-    int,
-    List<string>,
-    float,
-    double,
-    short,
-    Dictionary<int, bool>,
-    string
->;
-
-
-[GenerateOneOf]
-public partial class OneOf_SuccessOrFailure<TSuccess, TFailure> : OneOfBase<OneOf.Types.Success<TSuccess>, OneOf_SuccessOrFailure<TSuccess, TFailure>.Failure<TFailure>> {
-    public class Failure<T> { }
-}
-
-[Union]
-public partial record Dunet_TrueOrFalse {
-    public partial record Dunet_True;
-    public partial record Dunet_False;
-} 
-
-

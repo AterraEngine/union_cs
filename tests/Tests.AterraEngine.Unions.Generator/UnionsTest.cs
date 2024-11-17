@@ -5,9 +5,7 @@ using AterraEngine.Unions;
 using AterraEngine.Unions.Generator;
 using JetBrains.Annotations;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Tests.AterraEngine.Unions.Generator;
 // ---------------------------------------------------------------------------------------------------------------------

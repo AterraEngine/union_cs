@@ -11,7 +11,7 @@
 
         <IsPackable>true</IsPackable>
         <PackageId>AterraEngine.Unions.Generators</PackageId>
-        <Version>0.5.1-alpha</Version>
+        <Version>0.6.0-alpha</Version>
         <Authors>Anna Sas</Authors>
         <Description>The Generator for AterraEngine.Unions</Description>
         <PackageProjectUrl>https://github.com/AterraEngine/unions-cs/</PackageProjectUrl>

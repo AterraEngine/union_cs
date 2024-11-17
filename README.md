@@ -137,15 +137,24 @@ class Program {
 ### Benchmarks
 The following is a result of the benchmarks found at [Benchmarks.AterraEngine.Unions](tests/Benchmarks.AterraEngine.Unions).
 
-| Method                                                |      Mean |     Error |    StdDev | Ratio | RatioSD |   Gen0 | Allocated | Alloc Ratio |
-|-------------------------------------------------------|----------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
-| AterraEngineUnions_SuccessOrFailure_SwitchCase_Struct |  2.341 ns | 0.0718 ns | 0.1384 ns |  0.31 |    0.02 | 0.0014 |      24 B |        1.00 |
-| AterraEngineUnions_SuccessOrFailure_SwitchCase_Value  |  3.440 ns | 0.0536 ns | 0.0448 ns |  0.46 |    0.01 | 0.0014 |      24 B |        1.00 |
-| AterraEngineUnions_UnionT8_TryGetAs                   |  4.888 ns | 0.0106 ns | 0.0089 ns |  0.65 |    0.01 |      - |         - |        0.00 |
-| OneOf_SuccessOrFailure_SwitchCase_Value               |  5.573 ns | 0.0499 ns | 0.0467 ns |  0.74 |    0.01 | 0.0014 |      24 B |        1.00 |
-| AterraEngineUnions_UnionT8_SwitchCase_Value           |  7.262 ns | 0.0039 ns | 0.0034 ns |  0.96 |    0.01 |      - |         - |        0.00 |
-| AterraEngineUnions_TrueFalse_TryGetAsTrue             |  7.544 ns | 0.0894 ns | 0.0792 ns |  1.00 |    0.01 | 0.0014 |      24 B |        1.00 |
-| OneOfTrueFalse_TryGetAsTrue                           |  7.810 ns | 0.1197 ns | 0.1000 ns |  1.04 |    0.02 | 0.0038 |      64 B |        2.67 |
-| OneOf_OneOfT8_SwitchCase_Value                        |  8.746 ns | 0.0884 ns | 0.0738 ns |  1.16 |    0.02 | 0.0038 |      64 B |        2.67 |
-| OneOf_OneOfT8_TryGetAs                                | 11.956 ns | 0.1835 ns | 0.1627 ns |  1.58 |    0.03 | 0.0038 |      64 B |        2.67 |
-| Dunet_TrueFalse_MatchTrue                             | 21.764 ns | 0.1710 ns | 0.1428 ns |  2.89 |    0.03 | 0.0105 |     176 B |        7.33 |
+#### Normal benchmarks:
+| Method                                                |       Mean |     Error |    StdDev |     Median | Ratio | RatioSD |   Gen0 | Allocated | Alloc Ratio |
+|-------------------------------------------------------|-----------:|----------:|----------:|-----------:|------:|--------:|-------:|----------:|------------:|
+| AterraEngineUnions_UnionT8_SwitchCase_Value           |  0.0084 ns | 0.0130 ns | 0.0109 ns |  0.0035 ns | 0.002 |    0.00 |      - |         - |          NA |
+| AterraEngineUnions_UnionT8_TryGetAs                   |  0.0498 ns | 0.0429 ns | 0.0401 ns |  0.0512 ns | 0.009 |    0.01 |      - |         - |          NA |
+| AterraEngineUnions_SuccessOrFailure_SwitchCase_Struct |  0.1706 ns | 0.0034 ns | 0.0030 ns |  0.1711 ns | 0.031 |    0.00 |      - |         - |          NA |
+| AterraEngineUnions_SuccessOrFailure_SwitchCase_Value  |  4.3034 ns | 0.0903 ns | 0.0845 ns |  4.3041 ns | 0.791 |    0.02 | 0.0014 |      24 B |          NA |
+| AterraEngineUnions_TrueFalse_TryGetAsTrue             |  5.4398 ns | 0.0168 ns | 0.0157 ns |  5.4353 ns | 1.000 |    0.00 |      - |         - |          NA |
+| OneOf_SuccessOrFailure_SwitchCase_Value               |  6.6901 ns | 0.1500 ns | 0.1403 ns |  6.6654 ns | 1.230 |    0.03 | 0.0014 |      24 B |          NA |
+| OneOfTrueFalse_TryGetAsTrue                           |  9.8679 ns | 0.2493 ns | 0.5779 ns |  9.7943 ns | 1.814 |    0.11 | 0.0038 |      64 B |          NA |
+| OneOf_OneOfT8_SwitchCase_Value                        | 10.5042 ns | 0.2584 ns | 0.2291 ns | 10.4647 ns | 1.931 |    0.04 | 0.0038 |      64 B |          NA |
+| OneOf_OneOfT8_TryGetAs                                | 14.1214 ns | 0.1989 ns | 0.1860 ns | 14.0284 ns | 2.596 |    0.03 | 0.0038 |      64 B |          NA |
+| Dunet_TrueFalse_MatchTrue                             | 25.9659 ns | 0.5343 ns | 0.4998 ns | 25.9803 ns | 4.773 |    0.09 | 0.0105 |     176 B |          NA |
+
+#### Enhanced benchmarks
+| Method                                               |      Mean |     Error |    StdDev |   Gen0 | Allocated |
+|------------------------------------------------------|----------:|----------:|----------:|-------:|----------:|
+| AterraEngineUnions_UnionT8_SwitchCase_Value_Enhanced |  8.013 ns | 0.0674 ns | 0.0563 ns |      - |         - |
+| AterraEngineUnions_UnionT8_TryGetAs_Enhanced         | 15.455 ns | 0.2575 ns | 0.2529 ns |      - |         - |
+| OneOf_OneOfT8_SwitchCase_Value_Enhanced              | 19.011 ns | 0.2416 ns | 0.2260 ns | 0.0038 |      64 B |
+| OneOf_OneOfT8_TryGetAs_Enhanced                      | 29.328 ns | 0.2134 ns | 0.1996 ns | 0.0038 |      64 B |

@@ -22,4 +22,5 @@ public readonly partial struct TupleOrFalse() : IUnion<(True, Success<string>), 
 
 public readonly partial struct TestWithArrays() : IUnion<List<string>, string[]>;
 
-public readonly partial struct TestWithDictionaries() : IUnion<List<string>, Dictionary<string,string>>;
+public readonly partial struct TestWithDictionaries() : IUnion<List<string>, Dictionary<string, string>> {
+}
