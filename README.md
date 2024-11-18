@@ -94,8 +94,21 @@ switch (union) {
 }
 ```
 
+You can directly use the predefined `Union<>` and `Union<T0, T1, ...>` structs provided by `AterraEngine.Unions` for common use cases.
+This struct has the downside of it's aliases being named `isT0`, `asT0`, etc and is this less easy to follow along what is being referenced.
+```csharp
+using AterraEngine.Unions;
+
+public class UnionExample {
+    public Union<string, int> GetSomeValue(bool input) {
+        if (input) return "Something";
+        else return 0;
+    }
+}
+```
 
 Creating your own unions is easily done by installing `AterraEngine.Unions.Generators` and following the example:
+
 ```csharp
 using AterraEngine.Unions;
 
@@ -146,7 +159,7 @@ The following is a result of the benchmarks found at [Benchmarks.AterraEngine.Un
 | AterraEngineUnions_SuccessOrFailure_SwitchCase_Value  |  4.3034 ns | 0.0903 ns | 0.0845 ns |  4.3041 ns | 0.791 |    0.02 | 0.0014 |      24 B |          NA |
 | AterraEngineUnions_TrueFalse_TryGetAsTrue             |  5.4398 ns | 0.0168 ns | 0.0157 ns |  5.4353 ns | 1.000 |    0.00 |      - |         - |          NA |
 | OneOf_SuccessOrFailure_SwitchCase_Value               |  6.6901 ns | 0.1500 ns | 0.1403 ns |  6.6654 ns | 1.230 |    0.03 | 0.0014 |      24 B |          NA |
-| OneOfTrueFalse_TryGetAsTrue                           |  9.8679 ns | 0.2493 ns | 0.5779 ns |  9.7943 ns | 1.814 |    0.11 | 0.0038 |      64 B |          NA |
+| OneOf_TrueFalse_TryGetAsTrue                          |  9.8679 ns | 0.2493 ns | 0.5779 ns |  9.7943 ns | 1.814 |    0.11 | 0.0038 |      64 B |          NA |
 | OneOf_OneOfT8_SwitchCase_Value                        | 10.5042 ns | 0.2584 ns | 0.2291 ns | 10.4647 ns | 1.931 |    0.04 | 0.0038 |      64 B |          NA |
 | OneOf_OneOfT8_TryGetAs                                | 14.1214 ns | 0.1989 ns | 0.1860 ns | 14.0284 ns | 2.596 |    0.03 | 0.0038 |      64 B |          NA |
 | Dunet_TrueFalse_MatchTrue                             | 25.9659 ns | 0.5343 ns | 0.4998 ns | 25.9803 ns | 4.773 |    0.09 | 0.0105 |     176 B |          NA |

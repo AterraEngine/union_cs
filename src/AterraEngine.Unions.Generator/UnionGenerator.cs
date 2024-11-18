@@ -84,8 +84,12 @@ public class UnionGenerator : IIncrementalGenerator {
 
     private static void GenerateSources(SourceProductionContext context, (Compilation, ImmutableArray<UnionObject>) source) {
         (_, ImmutableArray<UnionObject> classDeclarations) = source;
+        Dictionary<string, int> generatedUnions = [];
         foreach (UnionObject unionInfo in classDeclarations) {
-            context.AddSource($"{unionInfo.Namespace}.{unionInfo.StructName}_Union.g.cs", GenerateUnionCode(unionInfo));
+            int i = 0;
+            if (generatedUnions.TryGetValue(unionInfo.StructName, out int value)) i = value + 1;
+            context.AddSource($"{unionInfo.Namespace}.{unionInfo.StructName}_{i}_Union.g.cs", GenerateUnionCode(unionInfo));
+            generatedUnions[unionInfo.StructName] = i;
         }
     }
 

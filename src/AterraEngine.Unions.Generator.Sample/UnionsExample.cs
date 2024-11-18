@@ -24,3 +24,10 @@ public readonly partial struct TestWithArrays() : IUnion<List<string>, string[]>
 
 public readonly partial struct TestWithDictionaries() : IUnion<List<string>, Dictionary<string, string>> {
 }
+
+public class UnionExample {
+    public Union<string, int> GetSomeValue(bool input) {
+        if (input) return "Something";
+        else return 0;
+    }
+}
