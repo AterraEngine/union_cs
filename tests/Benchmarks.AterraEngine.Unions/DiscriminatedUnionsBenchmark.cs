@@ -15,10 +15,10 @@ namespace Benchmarks.AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[MemoryDiagnoser]  // Adds memory allocation info
-[Orderer(SummaryOrderPolicy.FastestToSlowest)]  // Orders results by speed
+[MemoryDiagnoser]
+[Orderer(SummaryOrderPolicy.FastestToSlowest)]
 public class DiscriminatedUnionsBenchmark {
-    [Benchmark(Baseline = true)]  // Makes this the baseline for comparisons
+    [Benchmark(Baseline = true)]
     public True? AterraEngineUnions_TrueFalse_TryGetAsTrue() {
         TrueOrFalse union = new True();
         if (union.TryGetAsTrue(out True result)) return result;

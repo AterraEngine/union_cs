@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -15,7 +16,7 @@ namespace Tests.AterraEngine.Unions.Generator;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public abstract class IncrementalGeneratorTest<TGenerator> where TGenerator : IIncrementalGenerator, new() {
-    protected abstract Type[] ReferenceTypes { get; }
+    protected abstract Assembly[] ReferenceAssemblies { get; }
 
     protected async Task TestGeneratorAsync(string input, string expectedOutput, Func<GeneratedSourceResult, bool> predicate) {
         using var workspace = new AdhocWorkspace();
@@ -31,9 +32,9 @@ public abstract class IncrementalGeneratorTest<TGenerator> where TGenerator : II
             .WithParseOptions(new CSharpParseOptions(LanguageVersion.Latest));
 
         project = project.AddDocument("Test.cs", input).Project;
-        project = ReferenceTypes.Aggregate(
+        project = ReferenceAssemblies.Aggregate(
             project, 
-            (current, type) => current.AddMetadataReference(MetadataReference.CreateFromFile(type.Assembly.Location))
+            (current, assembly) => current.AddMetadataReference(MetadataReference.CreateFromFile(assembly.Location))
         );
 
         Compilation? compilation = await project.GetCompilationAsync();
@@ -44,6 +45,10 @@ public abstract class IncrementalGeneratorTest<TGenerator> where TGenerator : II
         Assert.NotEmpty(runResult.GeneratedTrees);
         foreach (Diagnostic diagnostic in runResult.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)) {
             Debug.WriteLine($"Error Diagnostic: {diagnostic.GetMessage()}");
+            Console.WriteLine($"Error Diagnostic: {diagnostic.GetMessage()}");
+        }
+
+        foreach (Diagnostic diagnostic in compilation.GetDiagnostics()) {
             Console.WriteLine($"Error Diagnostic: {diagnostic.GetMessage()}");
         }
 
