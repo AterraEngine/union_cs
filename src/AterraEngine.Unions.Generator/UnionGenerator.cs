@@ -99,7 +99,8 @@ public class UnionGenerator : IIncrementalGenerator {
         
         var namespaces = new HashSet<string> {
             "System",
-            "System.Diagnostics.CodeAnalysis"
+            "System.Diagnostics.CodeAnalysis",
+            "System.Threading.Tasks"
         };
 
         namespaces.UnionWith(unionObject.TypesWithAliases.Keys
@@ -116,88 +117,111 @@ public class UnionGenerator : IIncrementalGenerator {
             .AppendLine($"public readonly partial struct {unionObject.GetStructClassName()} {{")
             .AppendLine();
 
-        Dictionary<string, string> isToAs = new();
+        Dictionary<ITypeSymbol, UnionStringValues> typeToStringValues = [];
         
+        #region Per Type properties
         foreach (KeyValuePair<ITypeSymbol, string?> kvp in unionObject.TypesWithAliases) {
-            ITypeSymbol? typeSymbol = kvp.Key;
-            string alias = GetAlias(kvp);
-            string isAlias = $"Is{alias}";
-            string asAlias = $"As{alias}";
-            string typeNullable = typeSymbol.IsReferenceType ? "?" : string.Empty;
-            string notNullWhen = typeSymbol.IsReferenceType ? "[NotNullWhen(true)] " : string.Empty;
-            string typeIsNotNull = typeSymbol.IsReferenceType ? $" && {asAlias} is not null" : string.Empty;
-            
-            // Needed for the value check
-            isToAs.Add(isAlias, asAlias);
+            UnionStringValues sv = new(kvp.Key, kvp.Value);
+            typeToStringValues.Add(kvp.Key, sv);
 
             stringBuilder
-                .AppendLine($"    #region {alias}")
-                .AppendLine($"    public bool {isAlias} {{ get; init; }} = false;")
-                .AppendLine($"    public {typeSymbol}{typeNullable} {asAlias} {{get; init;}} = default!;")
-                .AppendLine($"    public bool TryGet{asAlias}({notNullWhen}out {typeSymbol}{typeNullable} value) {{")
-                .AppendLine($"        if ({isAlias}{typeIsNotNull}) {{")
-                .AppendLine($"            value = {asAlias};")
+                .AppendLine($"    #region {sv.Alias}")
+                .AppendLine($"    public bool {sv.IsAlias} {{ get; init; }} = false;")
+                .AppendLine($"    public {sv.Type}{sv.TypeNullable} {sv.AsAlias} {{get; init;}} = default!;")
+                .AppendLine($"    public bool TryGet{sv.AsAlias}({sv.NotNullWhen}out {sv.Type}{sv.TypeNullable} value) {{")
+                .AppendLine($"        if ({sv.IsAlias}{sv.TypeIsNotNull}) {{")
+                .AppendLine($"            value = {sv.AsAlias};")
                 .AppendLine( "            return true;")
                 .AppendLine( "        }")
                 .AppendLine( "        value = default;")
                 .AppendLine( "        return false;")
                 .AppendLine( "    }")
-                .AppendLine($"    public static implicit operator {unionObject.GetStructClassName()}({typeSymbol} value) => new {unionObject.GetStructClassName()}() {{")
-                .AppendLine($"        {isAlias} = true,")
-                .AppendLine($"        {asAlias} = value")
+                .AppendLine($"    public static implicit operator {unionObject.GetStructClassName()}({sv.Type} value) => new {unionObject.GetStructClassName()}() {{")
+                .AppendLine($"        {sv.IsAlias} = true,")
+                .AppendLine($"        {sv.AsAlias} = value")
                 .AppendLine( "    };")
                 .AppendLine( "    #endregion")
                 .AppendLine();
         }
+        #endregion
 
-        stringBuilder
-            .AppendLine( "    public object? Value { get {");
-        foreach (KeyValuePair<string,string> pair in isToAs) {
-            stringBuilder.AppendLine($"        if ({pair.Key}) return {pair.Value};");
+        #region Value Property
+        stringBuilder.AppendLine( "    public object? Value { get {");
+        foreach (UnionStringValues sv in typeToStringValues.Values) {
+            stringBuilder.AppendLine($"        if ({sv.IsAlias}) return {sv.AsAlias};");
         }
         stringBuilder
-            .AppendLine( "        throw new ArgumentOutOfRangeException();")
-            .AppendLine( "    }}");
+            .AppendLine( """        throw new ArgumentException("Union does not contain a value");""")
+            .AppendLine( "    }}")
+            .AppendLine();
+        #endregion
+        
+        #region Match Methods
+        stringBuilder.AppendLine("    #region Match and MatchAsync");
+        stringBuilder.Append( "    public TOutput Match<TOutput>(");
+        stringBuilder.Append(string.Join(",", typeToStringValues.Values.Select(sv => $"Func<{sv.Type}, TOutput> {sv.Alias.ToLowerInvariant()}Case")));
+        stringBuilder.AppendLine( "){");
+
+        stringBuilder.AppendLine("        switch (this) {");
+        foreach (UnionStringValues sv in typeToStringValues.Values) {
+            stringBuilder.AppendLine($"            case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : return {sv.Alias.ToLowerInvariant()}Case(value); ");
+
+        }
+        stringBuilder.AppendLine("        }");
+        stringBuilder.AppendLine("        throw new ArgumentException(\"Union does not contain a value\");");
+        stringBuilder.AppendLine("    }");
+        stringBuilder.AppendLine();
+        
+        
+        stringBuilder.Append( "    public async Task<TOutput> MatchAsync<TOutput>(");
+        stringBuilder.Append(string.Join(",", typeToStringValues.Values.Select(sv => $"Func<{sv.Type}, Task<TOutput>> {sv.Alias.ToLowerInvariant()}Case")));
+        stringBuilder.AppendLine( "){");
+
+        stringBuilder.AppendLine("        switch (this) {");
+        foreach (UnionStringValues sv in typeToStringValues.Values) {
+            stringBuilder.AppendLine($"            case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : return await {sv.Alias.ToLowerInvariant()}Case(value); ");
+        }
+        stringBuilder.AppendLine("        }");
+        stringBuilder.AppendLine("        throw new ArgumentException(\"Union does not contain a value\");");
+        stringBuilder.AppendLine("    }");
+        stringBuilder.AppendLine("    #endregion");
+        stringBuilder.AppendLine();
+        #endregion
+        
+        #region Switch Methods
+        stringBuilder.AppendLine("    #region Switch and SwitchAsync");
+        stringBuilder.Append( "    public void Switch(");
+        stringBuilder.Append(string.Join(",", typeToStringValues.Values.Select(sv => $"Action<{sv.Type}> {sv.Alias.ToLowerInvariant()}Case")));
+        stringBuilder.AppendLine( "){");
+
+        stringBuilder.AppendLine("        switch (this) {");
+        foreach (UnionStringValues sv in typeToStringValues.Values) {
+            stringBuilder.AppendLine($"            case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : {sv.Alias.ToLowerInvariant()}Case(value); return;");
+        }
+        stringBuilder.AppendLine("        }");
+        stringBuilder.AppendLine("        throw new ArgumentException(\"Union does not contain a value\");");
+        stringBuilder.AppendLine("    }");
+        stringBuilder.AppendLine();
+        
+        
+        stringBuilder.Append( "    public async Task SwitchAsync(");
+        stringBuilder.Append(string.Join(",", typeToStringValues.Values.Select(sv => $"Func<{sv.Type}, Task> {sv.Alias.ToLowerInvariant()}Case")));
+        stringBuilder.AppendLine( "){");
+
+        stringBuilder.AppendLine("        switch (this) {");
+        foreach (UnionStringValues sv in typeToStringValues.Values) {
+            stringBuilder.AppendLine($"            case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : await {sv.Alias.ToLowerInvariant()}Case(value); return;");
+        }
+        stringBuilder.AppendLine("        }");
+        stringBuilder.AppendLine("        throw new ArgumentException(\"Union does not contain a value\");");
+        stringBuilder.AppendLine("    }");
+        stringBuilder.AppendLine("    #endregion");
+        stringBuilder.AppendLine();
+        #endregion
         
         stringBuilder.AppendLine("}");
+        
 
         return stringBuilder.ToString();
-    }
-
-    private static string GetAlias(KeyValuePair<ITypeSymbol, string?> keyValuePair) => keyValuePair.Value ?? GetTypeAlias(keyValuePair.Key);
-    private static string GetTypeAlias(ITypeSymbol type) {
-        switch (type) {
-            case INamedTypeSymbol {IsTupleType: true } namedType: {
-                string stringConcat = string.Join(
-                    "And",
-                    namedType.TupleElements.Select(e => GetTypeAlias(e.Type))
-                );
-                return $"{stringConcat}Tuple";
-            }
-
-            case INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: > 0 } namedType: {
-                string stringConcat = string.Join(
-                    "And",
-                    namedType.TypeArguments
-                        .Where(arg => arg is not ITypeParameterSymbol)
-                        .Select(GetTypeAlias)
-                    );
-                
-                return stringConcat.Length > 0 ?
-                    $"{namedType.Name}Of{stringConcat}":
-                    namedType.Name; // It might be that all type parameters are generic, but we don't want to show that in the alias
-            }
-
-            case INamedTypeSymbol namedType: {
-                return namedType.Name;
-            }
-
-            case IArrayTypeSymbol arrayType: {
-                return $"{GetTypeAlias(arrayType.ElementType)}Array";
-            }
-            
-            default:
-                return type.Name;
-        }
     }
 }
