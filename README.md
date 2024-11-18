@@ -149,6 +149,7 @@ class Program {
 
 ### Benchmarks
 The following is a result of the benchmarks found at [Benchmarks.AterraEngine.Unions](tests/Benchmarks.AterraEngine.Unions).
+Benchmark results were last updated for version `0.7.0-alpha`
 
 #### Normal benchmarks:
 | Method                                                |       Mean |     Error |    StdDev |     Median | Ratio | RatioSD |   Gen0 | Allocated | Alloc Ratio |
