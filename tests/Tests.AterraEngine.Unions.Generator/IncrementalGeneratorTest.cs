@@ -44,7 +44,6 @@ public abstract class IncrementalGeneratorTest<TGenerator> where TGenerator : II
             
         Assert.NotEmpty(runResult.GeneratedTrees);
         foreach (Diagnostic diagnostic in runResult.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)) {
-            Debug.WriteLine($"Error Diagnostic: {diagnostic.GetMessage()}");
             Console.WriteLine($"Error Diagnostic: {diagnostic.GetMessage()}");
         }
 
