@@ -17,6 +17,7 @@ public readonly struct UnionStringValues(ITypeSymbol type, string? alias) {
     public string TypeNullable => type.IsReferenceType ? "?" : string.Empty;
     public string NotNullWhen => type.IsReferenceType ? "[NotNullWhen(true)] " : string.Empty;
     public string TypeIsNotNull => type.IsReferenceType ? $" && {AsAlias} is not null" : string.Empty;
+    public string MemberNotNullWhen => type.IsReferenceType ? $"[MemberNotNullWhen(true, \"{AsAlias}\")]" : string.Empty;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

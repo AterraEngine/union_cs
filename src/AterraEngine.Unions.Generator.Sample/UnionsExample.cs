@@ -1,7 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace AterraEngine.Unions.Generator.Sample;
@@ -25,7 +27,6 @@ public readonly partial struct TestWithArrays() : IUnion<List<string>, string[]>
 
 public readonly partial struct TestWithDictionaries() : IUnion<List<string>, Dictionary<string, string>> {
 }
-
 
 public class UnionExample {
     public Union<string, int> GetSomeValue(bool input) {

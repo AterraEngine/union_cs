@@ -126,7 +126,7 @@ public class UnionGenerator : IIncrementalGenerator {
 
             stringBuilder
                 .AppendLine($"    #region {sv.Alias}")
-                .AppendLine($"    public bool {sv.IsAlias} {{ get; init; }} = false;")
+                .AppendLine($"    {sv.MemberNotNullWhen}public bool {sv.IsAlias} {{ get; init; }} = false;")
                 .AppendLine($"    public {sv.Type}{sv.TypeNullable} {sv.AsAlias} {{get; init;}} = default!;")
                 .AppendLine($"    public bool TryGet{sv.AsAlias}({sv.NotNullWhen}out {sv.Type}{sv.TypeNullable} value) {{")
                 .AppendLine($"        if ({sv.IsAlias}{sv.TypeIsNotNull}) {{")
