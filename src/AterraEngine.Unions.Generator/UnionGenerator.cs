@@ -37,52 +37,37 @@ public class UnionGenerator : IIncrementalGenerator {
     }
 
     private static UnionObject? GatherUnionStructInfo(GeneratorSyntaxContext context, CancellationToken cancellationToken) {
-        var interfaces = ImmutableArray<INamedTypeSymbol>.Empty;
-        var attributes = ImmutableArray<AttributeData>.Empty;
-        string name = string.Empty;
-        string nameSpace = string.Empty;
-        var typeParams = ImmutableArray<ITypeParameterSymbol>.Empty;
-        bool isRecordStruct = false;
+        bool isRecordStruct = context.Node switch {
+            RecordDeclarationSyntax => true,
+            _ => false
+        };
         
-        switch (context.Node) {
-            case RecordDeclarationSyntax recordDeclarationSyntax : {
-                if (context.SemanticModel.GetDeclaredSymbol(recordDeclarationSyntax) is not {} recordSymbol) return null;
-                interfaces = recordSymbol.Interfaces;
-                attributes = recordSymbol.GetAttributes();
-                name = recordSymbol.Name;
-                nameSpace = recordSymbol.ContainingNamespace.ToDisplayString();
-                typeParams = recordSymbol.TypeParameters;
-                isRecordStruct = true;
-                break;
-            }
-            case StructDeclarationSyntax structDeclarationSyntax: {
-                if (context.SemanticModel.GetDeclaredSymbol(structDeclarationSyntax) is not {} structSymbol) return null;
-                interfaces = structSymbol.Interfaces;
-                attributes = structSymbol.GetAttributes();
-                name = structSymbol.Name;
-                nameSpace = structSymbol.ContainingNamespace.ToDisplayString();
-                typeParams = structSymbol.TypeParameters;
-                break;
-            }
-        }
-        // Check if the struct implements IUnion<>
-        INamedTypeSymbol? iUnionInterface = interfaces.FirstOrDefault(i => i.Name.Equals("IUnion") && i.IsGenericType);
-        if (iUnionInterface is null) return null;
+        INamedTypeSymbol? namedTypeSymbol = context.Node switch {
+            RecordDeclarationSyntax recordDeclarationSyntax => context.SemanticModel.GetDeclaredSymbol(recordDeclarationSyntax),
+            StructDeclarationSyntax structDeclarationSyntax => context.SemanticModel.GetDeclaredSymbol(structDeclarationSyntax),
+            _ => null
+        };
 
-        // Extract the type arguments from IUnion<>
-        ImmutableArray<ITypeSymbol> typeArguments = [..iUnionInterface.TypeArguments];
+        // Check if the struct implements IUnion<>
+        INamedTypeSymbol? iUnionInterface = namedTypeSymbol?.Interfaces.FirstOrDefault(
+            i => i.Name.Equals("IUnion") && i.IsGenericType
+        );
+        if (iUnionInterface is null) return null; // After this namedTypeSymbol cannot be null anymore, so use !
 
         // Fetch aliases from the UnionAliases attribute
-        AttributeData? aliasAttributeData = attributes
+        AttributeData? aliasAttributeData = namedTypeSymbol!.GetAttributes()
             .FirstOrDefault(attr => attr.AttributeClass?.Name == "UnionAliasesAttribute");
 
-        Dictionary<ITypeSymbol, string?> typesWithAliases = ExtractTypesWithAliases(aliasAttributeData, typeArguments);
+        Dictionary<ITypeSymbol, string?> typesWithAliases = ExtractTypesWithAliases(
+            aliasAttributeData,
+            iUnionInterface.TypeArguments
+        );
 
         return new UnionObject(
-            name,
-            nameSpace,
+            namedTypeSymbol.Name,
+            namedTypeSymbol.ContainingNamespace.ToDisplayString(),
             typesWithAliases,
-            [..typeParams.Select(tp => tp.ToDisplayString())],
+            [..namedTypeSymbol.TypeParameters.Select(tp => tp.ToDisplayString())],
             isRecordStruct
         );
     }
