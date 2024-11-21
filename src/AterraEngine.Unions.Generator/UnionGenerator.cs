@@ -20,15 +20,16 @@ public class UnionGenerator : IIncrementalGenerator {
         // Detect types with the IUnion<> interface
         IncrementalValueProvider<ImmutableArray<UnionObject>> unionStructs = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: (node, _) => node is StructDeclarationSyntax,
+                predicate: (node, _) => node is StructDeclarationSyntax or RecordDeclarationSyntax {ClassOrStructKeyword.ValueText: "struct"},
                 GatherUnionStructInfo)
             .Where(info => info is not null)
             .Select((info, _) => new UnionObject(
                 info?.StructName!,
                 info?.Namespace!,
                 info?.TypesWithAliases!,
-                (ImmutableArray<string>)info?.TypeParameters!)
-            )
+                (ImmutableArray<string>)info?.TypeParameters!,
+                info is { IsRecordStruct: true }   
+            ))
             .Collect();
 
         // Register the source output
@@ -36,30 +37,53 @@ public class UnionGenerator : IIncrementalGenerator {
     }
 
     private static UnionObject? GatherUnionStructInfo(GeneratorSyntaxContext context, CancellationToken cancellationToken) {
-        if (context.Node is not StructDeclarationSyntax structDeclaration) return null;
-        if (context.SemanticModel.GetDeclaredSymbol(structDeclaration) is not {} structSymbol) return null;
-
+        var interfaces = ImmutableArray<INamedTypeSymbol>.Empty;
+        var attributes = ImmutableArray<AttributeData>.Empty;
+        string name = string.Empty;
+        string nameSpace = string.Empty;
+        var typeParams = ImmutableArray<ITypeParameterSymbol>.Empty;
+        bool isRecordStruct = false;
+        
+        switch (context.Node) {
+            case RecordDeclarationSyntax recordDeclarationSyntax : {
+                if (context.SemanticModel.GetDeclaredSymbol(recordDeclarationSyntax) is not {} recordSymbol) return null;
+                interfaces = recordSymbol.Interfaces;
+                attributes = recordSymbol.GetAttributes();
+                name = recordSymbol.Name;
+                nameSpace = recordSymbol.ContainingNamespace.ToDisplayString();
+                typeParams = recordSymbol.TypeParameters;
+                isRecordStruct = true;
+                break;
+            }
+            case StructDeclarationSyntax structDeclarationSyntax: {
+                if (context.SemanticModel.GetDeclaredSymbol(structDeclarationSyntax) is not {} structSymbol) return null;
+                interfaces = structSymbol.Interfaces;
+                attributes = structSymbol.GetAttributes();
+                name = structSymbol.Name;
+                nameSpace = structSymbol.ContainingNamespace.ToDisplayString();
+                typeParams = structSymbol.TypeParameters;
+                break;
+            }
+        }
         // Check if the struct implements IUnion<>
-        INamedTypeSymbol? iUnionInterface = structSymbol.Interfaces.FirstOrDefault(i => i.Name.Equals("IUnion") && i.IsGenericType);
+        INamedTypeSymbol? iUnionInterface = interfaces.FirstOrDefault(i => i.Name.Equals("IUnion") && i.IsGenericType);
         if (iUnionInterface is null) return null;
 
         // Extract the type arguments from IUnion<>
         ImmutableArray<ITypeSymbol> typeArguments = [..iUnionInterface.TypeArguments];
 
         // Fetch aliases from the UnionAliases attribute
-        AttributeData? aliasAttributeData = structSymbol.GetAttributes()
+        AttributeData? aliasAttributeData = attributes
             .FirstOrDefault(attr => attr.AttributeClass?.Name == "UnionAliasesAttribute");
 
         Dictionary<ITypeSymbol, string?> typesWithAliases = ExtractTypesWithAliases(aliasAttributeData, typeArguments);
 
-        // Collect generic type parameters if present
-        ImmutableArray<ITypeParameterSymbol> genericTypeParameters = structSymbol.TypeParameters;
-
         return new UnionObject(
-            structSymbol.Name,
-            structSymbol.ContainingNamespace.ToDisplayString(),
+            name,
+            nameSpace,
             typesWithAliases,
-            [..genericTypeParameters.Select(tp => tp.ToDisplayString())]
+            [..typeParams.Select(tp => tp.ToDisplayString())],
+            isRecordStruct
         );
     }
 
@@ -111,10 +135,11 @@ public class UnionGenerator : IIncrementalGenerator {
             stringBuilder.AppendLine($"using {ns};");
         }
 
+        string isRecord = unionObject.IsRecordStruct ? "record " : string.Empty;
         stringBuilder
             .AppendLine($"namespace {unionObject.Namespace};")
             .AppendLine("#nullable enable")
-            .AppendLine($"public readonly partial struct {unionObject.GetStructClassName()} {{")
+            .AppendLine($"public readonly partial {isRecord}struct {unionObject.GetStructClassName()} {{")
             .AppendLine();
 
         Dictionary<ITypeSymbol, UnionStringValues> typeToStringValues = [];
