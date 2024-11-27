@@ -6,14 +6,15 @@
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
 
+        <DevelopmentDependency>true</DevelopmentDependency>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
 
         <IsPackable>true</IsPackable>
         <PackageId>AterraEngine.Unions.Generators</PackageId>
-        <Version>2.0.0</Version>
+        <Version>2.1.0</Version>
         <Authors>Anna Sas</Authors>
-        <Description>The Generator for AterraEngine.Unions</Description>
+        <Description>The Source Generator for AterraEngine.Unions</Description>
         <PackageProjectUrl>https://github.com/AterraEngine/unions-cs/</PackageProjectUrl>
         <PackageTags>discriminated unions;rosyln;generator</PackageTags>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
