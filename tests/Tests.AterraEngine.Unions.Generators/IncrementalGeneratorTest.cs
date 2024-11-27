@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Tests.AterraEngine.Unions.Generator;
+namespace Tests.AterraEngine.Unions.Generators;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

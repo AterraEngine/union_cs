@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace AterraEngine.Unions.Generator;
+namespace AterraEngine.Unions.Generators;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

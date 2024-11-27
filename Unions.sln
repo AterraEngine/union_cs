@@ -6,11 +6,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{CA995D89
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AterraEngine.Unions", "src\AterraEngine.Unions\AterraEngine.Unions.csproj", "{C27CF889-6010-4550-8DE8-F913D1140029}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AterraEngine.Unions.Generator", "src\AterraEngine.Unions.Generator\AterraEngine.Unions.Generator.csproj", "{0FE4476E-C0E3-485B-937D-7E5F5BC16155}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AterraEngine.Unions.Generators", "src\AterraEngine.Unions.Generators\AterraEngine.Unions.Generators.csproj", "{0FE4476E-C0E3-485B-937D-7E5F5BC16155}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AterraEngine.Unions.Generator.Sample", "src\AterraEngine.Unions.Generator.Sample\AterraEngine.Unions.Generator.Sample.csproj", "{FE770A7D-C5BC-4718-90C2-571EBA157CD7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AterraEngine.Unions.Generators.Sample", "src\AterraEngine.Unions.Generators.Sample\AterraEngine.Unions.Generators.Sample.csproj", "{FE770A7D-C5BC-4718-90C2-571EBA157CD7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.AterraEngine.Unions.Generator", "tests\Tests.AterraEngine.Unions.Generator\Tests.AterraEngine.Unions.Generator.csproj", "{1451BE55-4F53-4A38-B7CA-B2402D0CBEB7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.AterraEngine.Unions.Generators", "tests\Tests.AterraEngine.Unions.Generators\Tests.AterraEngine.Unions.Generators.csproj", "{1451BE55-4F53-4A38-B7CA-B2402D0CBEB7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.AterraEngine.Unions", "tests\Tests.AterraEngine.Unions\Tests.AterraEngine.Unions.csproj", "{A3CD7055-298F-4EDC-87C0-5553AD4D75A0}"
 EndProject

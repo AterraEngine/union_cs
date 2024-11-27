@@ -4,7 +4,7 @@
 using Microsoft.CodeAnalysis;
 using System.Linq;
 
-namespace AterraEngine.Unions.Generator;
+namespace AterraEngine.Unions.Generators;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
