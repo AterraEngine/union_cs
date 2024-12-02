@@ -6,4 +6,14 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public readonly partial struct SomeOneOrNone<T>() : IUnion<Some<T>, One<T>, None>;
+public readonly partial struct SomeOneOrNone<T>() : IUnion<Some<T>, One<T>, None> {
+    public static implicit operator SomeOneOrNone<T>(T[]? value) {
+        if (value is null) return new None();
+
+        return value.Length switch {
+            0 => new None(),
+            1 => new One<T>(value[0]),
+            _ => new Some<T>(value)
+        };
+    }
+}

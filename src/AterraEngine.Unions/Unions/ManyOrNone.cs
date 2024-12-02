@@ -6,4 +6,13 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public readonly partial struct ManyOrNone<T>() : IUnion<Many<T>, None>;
+public readonly partial struct ManyOrNone<T>() : IUnion<Many<T>, None> {
+    public static implicit operator ManyOrNone<T>(T[]? value) {
+        if (value is null) return new None();
+
+        return value.Length switch {
+            0 => new None(),
+            _ => new Many<T>(value)
+        };
+    }
+}
