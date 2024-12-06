@@ -1,0 +1,33 @@
+name: Publish Packages
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Match version tags like v1.0.0
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.0' # Ensure this matches your target framework
+
+      - name: Restore dependencies
+        run: dotnet restore src/AterraEngine.Unions.sln
+
+      - name: Build
+        run: dotnet build src/AterraEngine.Unions.sln --configuration Release --no-restore
+
+      - name: Publish to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push src/AterraEngine.Unions/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push src/AterraEngine.Unions.Generators/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate

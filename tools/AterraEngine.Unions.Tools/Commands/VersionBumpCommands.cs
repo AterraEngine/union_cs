@@ -11,7 +11,6 @@ namespace AterraEngine.Unions.Tools.Commands;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class VersionBumpCommands : ICommandAtlas {
-
     [Command<VersionBumpParameters>("bump")]
     public async Task VersionBumpCommand(VersionBumpParameters args) {
         Console.WriteLine("Bumping version...");
