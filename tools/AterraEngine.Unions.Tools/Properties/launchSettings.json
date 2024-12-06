@@ -8,9 +8,9 @@
       "commandName": "Project",
       "commandLineArgs": "bump -section=\"minor\""
     },
-    "Mayor Version Bump": {
+    "Major Version Bump": {
       "commandName": "Project",
-      "commandLineArgs": "bump -section=\"mayor\""
+      "commandLineArgs": "bump -section=\"major\""
     }
   }
 }

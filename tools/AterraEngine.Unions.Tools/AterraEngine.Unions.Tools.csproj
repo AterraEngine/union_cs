@@ -11,4 +11,8 @@
       <PackageReference Include="CliArgsParser" Version="2.2.7" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\AterraEngine.Unions\AterraEngine.Unions.csproj" />
+    </ItemGroup>
+
 </Project>
