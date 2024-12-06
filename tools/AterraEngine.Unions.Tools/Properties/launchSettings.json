@@ -1,0 +1,16 @@
+﻿{
+  "profiles": {
+    "Patch Version Bump": {
+      "commandName": "Project",
+      "commandLineArgs": "bump -section=\"patch\""
+    },
+    "Minor Version Bump": {
+      "commandName": "Project",
+      "commandLineArgs": "bump -section=\"minor\""
+    },
+    "Mayor Version Bump": {
+      "commandName": "Project",
+      "commandLineArgs": "bump -section=\"mayor\""
+    }
+  }
+}
