@@ -50,13 +50,13 @@ public class VersionBumpCommands : ICommandAtlas {
         Console.WriteLine(await gitTagProcess?.StandardOutput.ReadToEndAsync()!);
         await gitTagProcess.WaitForExitAsync();
         
-        if (gitTagProcess.ExitCode == 0) return "Git Tagging failed";
+        if (gitTagProcess.ExitCode != 0) return "Git Tagging failed";
         return new Success();
 
     }
     private async static Task<SuccessOrFailure> TryCreateGitCommit(string updatedVersion) {
 
-        var gitCommitInfo = new ProcessStartInfo("git", $"commit -am \"VersionBump :{updatedVersion}\"") {
+        var gitCommitInfo = new ProcessStartInfo("git", $"commit -am \"VersionBump : v{updatedVersion}\"") {
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true
@@ -66,7 +66,7 @@ public class VersionBumpCommands : ICommandAtlas {
         Console.WriteLine(await gitCommitProcess?.StandardOutput.ReadToEndAsync()!);
         await gitCommitProcess.WaitForExitAsync();
         
-        if (gitCommitProcess.ExitCode == 0) return "Git Commit failed";
+        if (gitCommitProcess.ExitCode != 0) return "Git Commit failed";
         return new Success();
     }
 
