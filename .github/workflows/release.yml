@@ -20,10 +20,10 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Restore dependencies
-        run: dotnet restore AterraEngine.Unions.sln
+        run: dotnet restore Unions.sln
 
       - name: Build
-        run: dotnet build AterraEngine.Unions.sln --configuration Release --no-restore
+        run: dotnet build Unions.sln --configuration Release --no-restore
 
       - name: Publish to NuGet
         env:
