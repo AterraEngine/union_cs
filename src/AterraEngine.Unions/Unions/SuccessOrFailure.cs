@@ -8,7 +8,7 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public readonly partial struct SuccessOrFailure<TSuccess, TFailure>() : IUnion<Success<TSuccess>, Failure<TFailure>> {
+public readonly partial struct SuccessOrFailure<TSuccess, TFailure>() : IUnion<Success<TSuccess>, Failure<TFailure>>, ISuccessOrFailure<TSuccess, TFailure> {
     public static implicit operator SuccessOrFailure<TSuccess, TFailure>(TSuccess value) => new Success<TSuccess>(value);
     public static implicit operator SuccessOrFailure<TSuccess, TFailure>(TFailure value) => new Failure<TFailure>(value);
     
@@ -30,7 +30,7 @@ public readonly partial struct SuccessOrFailure<TSuccess, TFailure>() : IUnion<S
 }
 
 [UnionAliases(null, "Failure")]
-public readonly partial struct SuccessOrFailure<TSuccess>() : IUnion<Success<TSuccess>, Failure<string>> {
+public readonly partial struct SuccessOrFailure<TSuccess>() : IUnion<Success<TSuccess>, Failure<string>>, ISuccessOrFailure<TSuccess> {
     public static implicit operator SuccessOrFailure<TSuccess>(TSuccess value) => new Success<TSuccess>(value);
     public static implicit operator SuccessOrFailure<TSuccess>(string value) => new Failure<string>(value);
     
