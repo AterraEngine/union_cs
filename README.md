@@ -149,26 +149,33 @@ class Program {
 
 ### Benchmarks
 The following is a result of the benchmarks found at [Benchmarks.AterraEngine.Unions](tests/Benchmarks.AterraEngine.Unions).
-Benchmark results were last updated for version `0.7.0-alpha`
+Benchmark results were last updated for version `2.4.0`
+
+> BenchmarkDotNet v0.14.0, Windows 11 (10.0.22631.4541/23H2/2023Update/SunValley3)
+> AMD Ryzen 9 5950X, 1 CPU, 32 logical and 16 physical cores
+> .NET SDK 9.0.100
+> [Host]     : .NET 9.0.0 (9.0.24.52809), X64 RyuJIT AVX2
+> DefaultJob : .NET 9.0.0 (9.0.24.52809), X64 RyuJIT AVX2
 
 #### Normal benchmarks:
-| Method                                                |       Mean |     Error |    StdDev |     Median | Ratio | RatioSD |   Gen0 | Allocated | Alloc Ratio |
-|-------------------------------------------------------|-----------:|----------:|----------:|-----------:|------:|--------:|-------:|----------:|------------:|
-| AterraEngineUnions_UnionT8_SwitchCase_Value           |  0.0084 ns | 0.0130 ns | 0.0109 ns |  0.0035 ns | 0.002 |    0.00 |      - |         - |          NA |
-| AterraEngineUnions_UnionT8_TryGetAs                   |  0.0498 ns | 0.0429 ns | 0.0401 ns |  0.0512 ns | 0.009 |    0.01 |      - |         - |          NA |
-| AterraEngineUnions_SuccessOrFailure_SwitchCase_Struct |  0.1706 ns | 0.0034 ns | 0.0030 ns |  0.1711 ns | 0.031 |    0.00 |      - |         - |          NA |
-| AterraEngineUnions_SuccessOrFailure_SwitchCase_Value  |  4.3034 ns | 0.0903 ns | 0.0845 ns |  4.3041 ns | 0.791 |    0.02 | 0.0014 |      24 B |          NA |
-| AterraEngineUnions_TrueFalse_TryGetAsTrue             |  5.4398 ns | 0.0168 ns | 0.0157 ns |  5.4353 ns | 1.000 |    0.00 |      - |         - |          NA |
-| OneOf_SuccessOrFailure_SwitchCase_Value               |  6.6901 ns | 0.1500 ns | 0.1403 ns |  6.6654 ns | 1.230 |    0.03 | 0.0014 |      24 B |          NA |
-| OneOf_TrueFalse_TryGetAsTrue                          |  9.8679 ns | 0.2493 ns | 0.5779 ns |  9.7943 ns | 1.814 |    0.11 | 0.0038 |      64 B |          NA |
-| OneOf_OneOfT8_SwitchCase_Value                        | 10.5042 ns | 0.2584 ns | 0.2291 ns | 10.4647 ns | 1.931 |    0.04 | 0.0038 |      64 B |          NA |
-| OneOf_OneOfT8_TryGetAs                                | 14.1214 ns | 0.1989 ns | 0.1860 ns | 14.0284 ns | 2.596 |    0.03 | 0.0038 |      64 B |          NA |
-| Dunet_TrueFalse_MatchTrue                             | 25.9659 ns | 0.5343 ns | 0.4998 ns | 25.9803 ns | 4.773 |    0.09 | 0.0105 |     176 B |          NA |
+| Method                                                |       Mean |     Error |    StdDev | Ratio | RatioSD |   Gen0 | Allocated | Alloc Ratio |
+|-------------------------------------------------------|-----------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
+| AterraEngineUnions_UnionT8_TryGetAs                   |  0.0007 ns | 0.0006 ns | 0.0005 ns | 0.000 |    0.00 |      - |         - |          NA |
+| AterraEngineUnions_UnionT8_SwitchCase_Value           |  0.0039 ns | 0.0040 ns | 0.0032 ns | 0.001 |    0.00 |      - |         - |          NA |
+| AterraEngineUnions_SuccessOrFailure_SwitchCase_Struct |  0.0537 ns | 0.0073 ns | 0.0069 ns | 0.010 |    0.00 |      - |         - |          NA |
+| AterraEngineUnions_SuccessOrFailure_SwitchCase_Value  |  3.5285 ns | 0.0187 ns | 0.0166 ns | 0.649 |    0.00 | 0.0014 |      24 B |          NA |
+| AterraEngineUnions_TrueFalse_TryGetAsTrue             |  5.4344 ns | 0.0065 ns | 0.0055 ns | 1.000 |    0.00 |      - |         - |          NA |
+| OneOf_SuccessOrFailure_SwitchCase_Value               |  6.0279 ns | 0.1432 ns | 0.1705 ns | 1.109 |    0.03 | 0.0014 |      24 B |          NA |
+| OneOfTrueFalse_TryGetAsTrue                           |  7.5625 ns | 0.2001 ns | 0.3949 ns | 1.392 |    0.07 | 0.0038 |      64 B |          NA |
+| OneOf_OneOfT8_SwitchCase_Value                        |  9.5294 ns | 0.2108 ns | 0.1760 ns | 1.754 |    0.03 | 0.0038 |      64 B |          NA |
+| OneOf_OneOfT8_TryGetAs                                | 12.8456 ns | 0.1744 ns | 0.1632 ns | 2.364 |    0.03 | 0.0038 |      64 B |          NA |
+| Dunet_TrueFalse_MatchTrue                             | 21.2662 ns | 0.4654 ns | 0.4125 ns | 3.913 |    0.07 | 0.0105 |     176 B |          NA |
 
 #### Enhanced benchmarks
 | Method                                               |      Mean |     Error |    StdDev |   Gen0 | Allocated |
 |------------------------------------------------------|----------:|----------:|----------:|-------:|----------:|
-| AterraEngineUnions_UnionT8_SwitchCase_Value_Enhanced |  8.013 ns | 0.0674 ns | 0.0563 ns |      - |         - |
-| AterraEngineUnions_UnionT8_TryGetAs_Enhanced         | 15.455 ns | 0.2575 ns | 0.2529 ns |      - |         - |
-| OneOf_OneOfT8_SwitchCase_Value_Enhanced              | 19.011 ns | 0.2416 ns | 0.2260 ns | 0.0038 |      64 B |
-| OneOf_OneOfT8_TryGetAs_Enhanced                      | 29.328 ns | 0.2134 ns | 0.1996 ns | 0.0038 |      64 B |
+| AterraEngineUnions_UnionT8_SwitchCase_Value_Enhanced |  7.735 ns | 0.0171 ns | 0.0143 ns |      - |         - |
+| AterraEngineUnions_UnionT8_TryGetAs_Enhanced         | 14.725 ns | 0.0378 ns | 0.0335 ns |      - |         - |
+| OneOf_OneOfT8_SwitchCase_Value_Enhanced              | 17.159 ns | 0.3368 ns | 0.5719 ns | 0.0038 |      64 B |
+| OneOf_OneOfT8_TryGetAs_Enhanced                      | 27.468 ns | 0.2072 ns | 0.1939 ns | 0.0038 |      64 B |
+
