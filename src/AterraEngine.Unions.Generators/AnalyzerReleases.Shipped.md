@@ -4,4 +4,3 @@
 
 Rule ID | Category | Severity | Notes                    
 --------|----------|----------|--------------------
-ATRUN001 | InjectableServices | Info     | UnionAliasAttribute not found 

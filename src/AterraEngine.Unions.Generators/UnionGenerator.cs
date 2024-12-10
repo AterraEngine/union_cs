@@ -4,6 +4,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -14,45 +15,73 @@ namespace AterraEngine.Unions.Generators;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Generates source code for union-like structures in C#.
+/// </summary>
 [Generator(LanguageNames.CSharp)]
 public class UnionGenerator : IIncrementalGenerator {
+    /// <summary>
+    ///     Initializes the incremental generator by registering syntax providers and source output generation.
+    /// </summary>
+    /// <param name="context">The context used to configure incremental source generation.</param>
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         // Detect types with the IUnion<> interface
         IncrementalValueProvider<ImmutableArray<UnionObject>> unionStructs = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: (node, _) => node is StructDeclarationSyntax or RecordDeclarationSyntax {ClassOrStructKeyword.ValueText: "struct"},
+                IsUnionStructCandidate,
                 GatherUnionStructInfo)
-            .Where(info => info is not null)
-            .Select((info, _) => new UnionObject(
-                info?.StructName!,
-                info?.Namespace!,
-                info?.TypesWithAliases!,
-                (ImmutableArray<string>)info?.TypeParameters!,
-                info is { IsRecordStruct: true }   
-            ))
             .Collect();
 
         // Register the source output
         context.RegisterSourceOutput(context.CompilationProvider.Combine(unionStructs), GenerateSources);
     }
 
-    private static UnionObject? GatherUnionStructInfo(GeneratorSyntaxContext context, CancellationToken cancellationToken) {
+    /// <summary>
+    ///     Identifies whether a given syntax node is a candidate for being a union struct.
+    ///     A union struct candidate must be a struct or record struct that implements
+    ///     an interface with a name containing "IUnion".
+    /// </summary>
+    /// <param name="node">The syntax node to evaluate.</param>
+    /// <param name="_">An instance of <see cref="CancellationToken" /> to handle cancellation requests.</param>
+    /// <returns>
+    ///     A boolean value indicating whether the provided syntax node is a valid union struct candidate.
+    /// </returns>
+    private static bool IsUnionStructCandidate(SyntaxNode node, CancellationToken _) =>
+        node is
+            (StructDeclarationSyntax or RecordDeclarationSyntax { ClassOrStructKeyword.ValueText: "struct" })
+            and BaseTypeDeclarationSyntax { BaseList.Types.Count : > 0 } baseTypeDeclarationSyntax
+        && baseTypeDeclarationSyntax.BaseList.Types[0].Type is GenericNameSyntax genericNameSyntax
+        && genericNameSyntax.Identifier.ValueText.Contains("IUnion");
+
+    /// <summary>
+    ///     Gathers information about a struct or record struct that implements the IUnion interface.
+    /// </summary>
+    /// <param name="context">
+    ///     Provides context for analyzing syntax elements and obtaining semantic information.
+    /// </param>
+    /// <param name="cancellationToken">
+    ///     A token that can be used to cancel the operation if needed.
+    /// </param>
+    /// <returns>
+    ///     A <see cref="UnionObject" /> containing details about the struct or record struct,
+    ///     such as its name, namespace, type parameters, aliases, and whether it is a record struct.
+    /// </returns>
+    private static UnionObject GatherUnionStructInfo(GeneratorSyntaxContext context, CancellationToken cancellationToken) {
         bool isRecordStruct = context.Node switch {
             RecordDeclarationSyntax => true,
             _ => false
         };
-        
+
         INamedTypeSymbol? namedTypeSymbol = context.Node switch {
             RecordDeclarationSyntax recordDeclarationSyntax => context.SemanticModel.GetDeclaredSymbol(recordDeclarationSyntax),
             StructDeclarationSyntax structDeclarationSyntax => context.SemanticModel.GetDeclaredSymbol(structDeclarationSyntax),
-            _ => null
+            _ => throw new ArgumentOutOfRangeException()// Should never happen because we check in IsUnionStructCandidate
         };
 
         // Check if the struct implements IUnion<>
-        INamedTypeSymbol? iUnionInterface = namedTypeSymbol?.Interfaces.FirstOrDefault(
+        INamedTypeSymbol iUnionInterface = namedTypeSymbol?.Interfaces.First(
             i => i.Name.Equals("IUnion") && i.IsGenericType
-        );
-        if (iUnionInterface is null) return null; // After this namedTypeSymbol cannot be null anymore, so use !
+        )!;
 
         // Fetch aliases from the UnionAliases attribute
         AttributeData? aliasAttributeData = namedTypeSymbol!.GetAttributes()
@@ -72,15 +101,29 @@ public class UnionGenerator : IIncrementalGenerator {
         );
     }
 
+    /// <summary>
+    ///     Extracts a dictionary of type symbols and their corresponding alias strings (if any)
+    ///     from the provided attribute data and collection of type arguments.
+    /// </summary>
+    /// <param name="aliasAttributeData">
+    ///     The <see cref="AttributeData" /> object representing the UnionAliases attribute that contains alias information.
+    ///     This can be null if no alias attribute is specified.
+    /// </param>
+    /// <param name="typeArguments">
+    ///     An immutable array of type symbols representing the type arguments for a union type.
+    /// </param>
+    /// <returns>
+    ///     A dictionary where each key is a type symbol representing a type argument, and the value is its corresponding alias
+    ///     string
+    ///     (if provided in the UnionAliases attribute). If no alias is provided, the value will be null.
+    /// </returns>
     private static Dictionary<ITypeSymbol, string?> ExtractTypesWithAliases(AttributeData? aliasAttributeData, ImmutableArray<ITypeSymbol> typeArguments) {
         int maxLength = typeArguments.Length;
         string?[] aliases = new string?[maxLength];
 
         // ReSharper disable once InvertIf
         if (aliasAttributeData is { ConstructorArguments : { Length: > 0 } arguments }) {
-            for (int i = 0; i < maxLength; i++) {
-                aliases[i] = arguments[i].Value as string;
-            }
+            for (int i = 0; i < maxLength; i++) aliases[i] = arguments[i].Value as string;
         }
 
         return typeArguments.Zip(aliases, resultSelector: (type, alias) => (type, alias))
@@ -91,21 +134,39 @@ public class UnionGenerator : IIncrementalGenerator {
             );
     }
 
+    /// <summary>
+    ///     Generates source code for union structures based on the provided compilation and collected union object data.
+    /// </summary>
+    /// <param name="context">The source production context used to add generated source files.</param>
+    /// <param name="source">
+    ///     A tuple consisting of the current compilation and an immutable array of union objects gathered
+    ///     from the codebase.
+    /// </param>
     private static void GenerateSources(SourceProductionContext context, (Compilation, ImmutableArray<UnionObject>) source) {
         (_, ImmutableArray<UnionObject> classDeclarations) = source;
         Dictionary<string, int> generatedUnions = [];
         foreach (UnionObject unionInfo in classDeclarations) {
             int i = 0;
             if (generatedUnions.TryGetValue(unionInfo.StructName, out int value)) i = value + 1;
-            context.AddSource($"{unionInfo.Namespace}.{unionInfo.StructName}_{i}_Union.g.cs", GenerateUnionCode(unionInfo));
+            string iOffset = i > 0 ? $"_{i}" : string.Empty;
+            context.AddSource($"{unionInfo.StructName}{iOffset}_Union.g.cs", GenerateUnionCode(unionInfo));
             generatedUnions[unionInfo.StructName] = i;
         }
     }
 
+    /// <summary>
+    ///     Generates C# union code for the specified union object.
+    /// </summary>
+    /// <param name="unionObject">
+    ///     The union object containing metadata and types needed to generate the union code.
+    /// </param>
+    /// <returns>
+    ///     A string representing the generated C# code for the union.
+    /// </returns>
     private static string GenerateUnionCode(UnionObject unionObject) {
         var stringBuilder = new StringBuilder();
         stringBuilder.AppendLine("// <auto-generated />");
-        
+
         var namespaces = new HashSet<string> {
             "System",
             "System.Diagnostics.CodeAnalysis",
@@ -128,7 +189,7 @@ public class UnionGenerator : IIncrementalGenerator {
             .AppendLine();
 
         Dictionary<ITypeSymbol, UnionStringValues> typeToStringValues = [];
-        
+
         #region Per Type properties
         foreach (KeyValuePair<ITypeSymbol, string?> kvp in unionObject.TypesWithAliases) {
             UnionStringValues sv = new(kvp.Key, kvp.Value);
@@ -136,101 +197,106 @@ public class UnionGenerator : IIncrementalGenerator {
 
             stringBuilder
                 .AppendLine($"    #region {sv.Alias}")
-                .AppendLine($"    {sv.MemberNotNullWhen}public bool {sv.IsAlias} {{ get; init; }} = false;")
-                .AppendLine($"    public {sv.Type}{sv.TypeNullable} {sv.AsAlias} {{get; init;}} = default!;")
+                .AppendLine($"    {sv.MemberNotNullWhen}public bool {sv.IsAlias} {{ get; private init; }} = false;")
+                .AppendLine($"    public {sv.Type}{sv.TypeNullable} {sv.AsAlias} {{get; private init;}} = default!;")
                 .AppendLine($"    public bool TryGet{sv.AsAlias}({sv.NotNullWhen}out {sv.Type}{sv.TypeNullable} value) {{")
                 .AppendLine($"        if ({sv.IsAlias}{sv.TypeIsNotNull}) {{")
                 .AppendLine($"            value = {sv.AsAlias};")
-                .AppendLine( "            return true;")
-                .AppendLine( "        }")
-                .AppendLine( "        value = default;")
-                .AppendLine( "        return false;")
-                .AppendLine( "    }")
+                .AppendLine("            return true;")
+                .AppendLine("        }")
+                .AppendLine("        value = default;")
+                .AppendLine("        return false;")
+                .AppendLine("    }")
                 .AppendLine($"    public static implicit operator {unionObject.GetStructClassName()}({sv.Type} value) => new {unionObject.GetStructClassName()}() {{")
                 .AppendLine($"        {sv.IsAlias} = true,")
                 .AppendLine($"        {sv.AsAlias} = value")
-                .AppendLine( "    };")
-                .AppendLine( "    #endregion")
+                .AppendLine("    };")
+                .AppendLine("    #endregion")
                 .AppendLine();
         }
         #endregion
 
         #region Value Property
-        stringBuilder.AppendLine( "    public object? Value { get {");
+        stringBuilder.AppendLine("    public object? Value { get {");
         foreach (UnionStringValues sv in typeToStringValues.Values) {
             stringBuilder.AppendLine($"        if ({sv.IsAlias}) return {sv.AsAlias};");
         }
+
         stringBuilder
-            .AppendLine( """        throw new ArgumentException("Union does not contain a value");""")
-            .AppendLine( "    }}")
+            .AppendLine("""        throw new ArgumentException("Union does not contain a value");""")
+            .AppendLine("    }}")
             .AppendLine();
         #endregion
-        
+
         #region Match Methods
         stringBuilder.AppendLine("    #region Match and MatchAsync");
-        stringBuilder.Append( "    public TOutput Match<TOutput>(");
+        stringBuilder.Append("    public TOutput Match<TOutput>(");
         stringBuilder.Append(string.Join(",", typeToStringValues.Values.Select(sv => $"Func<{sv.Type}, TOutput> {sv.Alias.ToLowerInvariant()}Case")));
-        stringBuilder.AppendLine( "){");
+        stringBuilder.AppendLine("){");
 
         stringBuilder.AppendLine("        switch (this) {");
         foreach (UnionStringValues sv in typeToStringValues.Values) {
             stringBuilder.AppendLine($"            case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : return {sv.Alias.ToLowerInvariant()}Case(value); ");
 
         }
+
         stringBuilder.AppendLine("        }");
         stringBuilder.AppendLine("        throw new ArgumentException(\"Union does not contain a value\");");
         stringBuilder.AppendLine("    }");
         stringBuilder.AppendLine();
-        
-        
-        stringBuilder.Append( "    public async Task<TOutput> MatchAsync<TOutput>(");
+
+
+        stringBuilder.Append("    public async Task<TOutput> MatchAsync<TOutput>(");
         stringBuilder.Append(string.Join(",", typeToStringValues.Values.Select(sv => $"Func<{sv.Type}, Task<TOutput>> {sv.Alias.ToLowerInvariant()}Case")));
-        stringBuilder.AppendLine( "){");
+        stringBuilder.AppendLine("){");
 
         stringBuilder.AppendLine("        switch (this) {");
         foreach (UnionStringValues sv in typeToStringValues.Values) {
             stringBuilder.AppendLine($"            case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : return await {sv.Alias.ToLowerInvariant()}Case(value); ");
         }
+
         stringBuilder.AppendLine("        }");
         stringBuilder.AppendLine("        throw new ArgumentException(\"Union does not contain a value\");");
         stringBuilder.AppendLine("    }");
         stringBuilder.AppendLine("    #endregion");
         stringBuilder.AppendLine();
         #endregion
-        
+
         #region Switch Methods
         stringBuilder.AppendLine("    #region Switch and SwitchAsync");
-        stringBuilder.Append( "    public void Switch(");
+        stringBuilder.Append("    public void Switch(");
         stringBuilder.Append(string.Join(",", typeToStringValues.Values.Select(sv => $"Action<{sv.Type}> {sv.Alias.ToLowerInvariant()}Case")));
-        stringBuilder.AppendLine( "){");
+        stringBuilder.AppendLine("){");
 
         stringBuilder.AppendLine("        switch (this) {");
         foreach (UnionStringValues sv in typeToStringValues.Values) {
             stringBuilder.AppendLine($"            case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : {sv.Alias.ToLowerInvariant()}Case(value); return;");
         }
+
         stringBuilder.AppendLine("        }");
         stringBuilder.AppendLine("        throw new ArgumentException(\"Union does not contain a value\");");
         stringBuilder.AppendLine("    }");
         stringBuilder.AppendLine();
-        
-        
-        stringBuilder.Append( "    public async Task SwitchAsync(");
+
+
+        stringBuilder.Append("    public async Task SwitchAsync(");
         stringBuilder.Append(string.Join(",", typeToStringValues.Values.Select(sv => $"Func<{sv.Type}, Task> {sv.Alias.ToLowerInvariant()}Case")));
-        stringBuilder.AppendLine( "){");
+        stringBuilder.AppendLine("){");
 
         stringBuilder.AppendLine("        switch (this) {");
         foreach (UnionStringValues sv in typeToStringValues.Values) {
             stringBuilder.AppendLine($"            case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : await {sv.Alias.ToLowerInvariant()}Case(value); return;");
         }
+
         stringBuilder.AppendLine("        }");
         stringBuilder.AppendLine("        throw new ArgumentException(\"Union does not contain a value\");");
         stringBuilder.AppendLine("    }");
         stringBuilder.AppendLine("    #endregion");
         stringBuilder.AppendLine();
         #endregion
-        
+
         stringBuilder.AppendLine("}");
-        
+
 
         return stringBuilder.ToString();
     }
