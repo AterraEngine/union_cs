@@ -9,85 +9,87 @@ namespace Tests.AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 public class UnionAliasesAttributeTest {
 
-    [Fact]
-    public void UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenAliasT0IsProvided() {
+    [Test]
+    public async Task UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenAliasT0IsProvided() {
         // Arrange & Act
         var attribute = new UnionAliasesAttribute(aliasT0: "SuccessWithValue");
 
         // Assert
-        Assert.Contains("SuccessWithValue", attribute.Aliases);
+        await Assert.That(attribute.Aliases.Select(a => a ?? "")).Contains("SuccessWithValue");
     }
 
 
-    [Fact]
-    public void UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenMultipleAliasesAreProvided() {
+    [Test]
+    public async Task UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenMultipleAliasesAreProvided() {
         // Arrange & Act
         var attribute = new UnionAliasesAttribute("Alias0", "Alias1", "Alias2");
 
         // Assert
-        Assert.Equal("Alias0", attribute.Aliases[0]);
-        Assert.Equal("Alias1", attribute.Aliases[1]);
-        Assert.Equal("Alias2", attribute.Aliases[2]);
+        await Assert.That(attribute.Aliases[0]).IsTypeOf<string>().And.IsEqualTo("Alias0");
+        await Assert.That(attribute.Aliases[1]).IsTypeOf<string>().And.IsEqualTo("Alias1");
+        await Assert.That(attribute.Aliases[2]).IsTypeOf<string>().And.IsEqualTo("Alias2");
     }
 
-    [Fact]
-    public void UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenAliasT1IsProvided() {
+    [Test]
+    public async Task UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenAliasT1IsProvided() {
         // Arrange & Act
         var attribute = new UnionAliasesAttribute(aliasT1: "Empty");
 
         // Assert
-        Assert.Equal("Empty", attribute.Aliases[1]);
+        await Assert.That(attribute.Aliases[1]).IsTypeOf<string>().And.IsEqualTo("Empty");
     }
 
 
-    [Fact]
-    public void UnionAliasesAttribute_ShouldHaveDefaultAliases_WhenNoAliasesAreProvided() {
+    [Test]
+    public async Task UnionAliasesAttribute_ShouldHaveDefaultAliases_WhenNoAliasesAreProvided() {
         // Arrange & Act
         var attribute = new UnionAliasesAttribute();
 
         // Assert
-        Assert.All(attribute.Aliases, Assert.Null);
+        foreach (string? alias in attribute.Aliases) {
+            await Assert.That(alias).IsNullOrWhitespace();
+        }
     }
 
-    [Fact]
-    public void UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenAliasT0AndAliasT1AreProvided() {
+    [Test]
+    public async Task UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenAliasT0AndAliasT1AreProvided() {
         // Arrange & Act
         var attribute = new UnionAliasesAttribute(aliasT0: "Nothing", aliasT1: "Something");
 
         // Assert
-        Assert.Equal("Nothing", attribute.Aliases[0]);
-        Assert.Equal("Something", attribute.Aliases[1]);
+        await Assert.That(attribute.Aliases[0]).IsTypeOf<string>().And.IsEqualTo("Nothing");
+        await Assert.That(attribute.Aliases[1]).IsTypeOf<string>().And.IsEqualTo("Something");
     }
 
 
-    [Fact]
-    public void UnionAliasesAttribute_ShouldHaveCorrectNumberOfAliases() {
+    [Test]
+    public async Task UnionAliasesAttribute_ShouldHaveCorrectNumberOfAliases() {
         // Arrange & Act
         var attribute = new UnionAliasesAttribute("Alias0", "Alias1");
 
         // Assert
-        Assert.Equal("Alias0", attribute.Aliases[0]);
-        Assert.Equal("Alias1", attribute.Aliases[1]);
+        await Assert.That(attribute.Aliases[0]).IsTypeOf<string>().And.IsEqualTo("Alias0");
+        await Assert.That(attribute.Aliases[1]).IsTypeOf<string>().And.IsEqualTo("Alias1");
     }
 
-    [Fact]
-    public void UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenAliasT2IsProvided() {
+    [Test]
+    public async Task UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenAliasT2IsProvided() {
         // Arrange & Act
         var attribute = new UnionAliasesAttribute(aliasT2: "Alias");
 
         // Assert
-        Assert.Equal("Alias", attribute.Aliases[2]);
+        await Assert.That(attribute.Aliases[2]).IsTypeOf<string>().And.IsEqualTo("Alias");
     }
 
 
-    [Fact]
-    public void UnionAliasesAttribute_ShouldHandleMixedValues() {
+    [Test]
+    public async Task UnionAliasesAttribute_ShouldHandleMixedValues() {
         // Arrange & Act
         var attribute = new UnionAliasesAttribute("Alias0", null, "Alias2");
 
         // Assert
-        Assert.Equal("Alias0", attribute.Aliases[0]);
-        Assert.Null(attribute.Aliases[1]);
-        Assert.Equal("Alias2", attribute.Aliases[2]);
+        await Assert.That(attribute.Aliases[0]).IsTypeOf<string>().And.IsEqualTo("Alias0");
+        await Assert.That(attribute.Aliases[1]).IsNull();
+        await Assert.That(attribute.Aliases[2]).IsTypeOf<string>().And.IsEqualTo("Alias2");
     }
 }

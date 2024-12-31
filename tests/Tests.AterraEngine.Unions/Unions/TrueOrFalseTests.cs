@@ -9,82 +9,91 @@ namespace Tests.AterraEngine.Unions.Unions;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class TrueOrFalseTests {
-    [Fact]
-    public void Test_UnionHasTrue() {
+    [Test]
+    public async Task Test_UnionHasTrue() {
         TrueOrFalse union = new True();
-        Assert.True(union.IsTrue);
-        Assert.False(union.IsFalse);
-        Assert.IsType<True>(union.Value);
+        
+        await Assert.That(union.IsTrue).IsTrue();
+        await Assert.That(union.IsFalse).IsFalse();
+        await Assert.That(union.Value).IsTypeOf<True>();
     }
 
-    [Fact]
-    public void Test_UnionHasFalse() {
+    [Test]
+    public async Task Test_UnionHasFalse() {
         TrueOrFalse union = new False();
-        Assert.True(union.IsFalse);
-        Assert.False(union.IsTrue);
-        Assert.IsType<False>(union.Value);
+        
+        await Assert.That(union.IsTrue).IsFalse();
+        await Assert.That(union.IsFalse).IsTrue();
+        await Assert.That(union.Value).IsTypeOf<False>();
     }
 
-    [Fact]
-    public void Test_TryGetAsTrue_Success() {
+    [Test]
+    public async Task Test_TryGetAsTrue_Success() {
         TrueOrFalse union = new True();
-        Assert.True(union.TryGetAsTrue(out True result));
-        Assert.Equal(new True(), result);
+        
+        await Assert.That(union.TryGetAsTrue(out True result)).IsTrue();
+        await Assert.That(result).IsTypeOf<True>();
     }
 
-    [Fact]
-    public void Test_TryGetAsFalse_Success() {
+    [Test]
+    public async Task Test_TryGetAsFalse_Success() {
         TrueOrFalse union = new False();
-        Assert.True(union.TryGetAsFalse(out False result));
-        Assert.Equal(new False(), result);
+        
+        await Assert.That(union.TryGetAsFalse(out False result)).IsTrue();
+        await Assert.That(result).IsTypeOf<False>();
     }
 
-    [Fact]
-    public void Test_TryGetAsTrue_Failure() {
+    [Test]
+    public async Task Test_TryGetAsTrue_Failure() {
         TrueOrFalse union = new False();
-        Assert.False(union.TryGetAsTrue(out True result));
-        Assert.Equal(default, result);
+        
+        await Assert.That(union.TryGetAsTrue(out True result)).IsFalse();
+        await Assert.That(result).IsTypeOf<True>()
+            .And.IsEqualTo(default);
     }
 
-    [Fact]
-    public void Test_TryGetAsFalse_Failure() {
+    [Test]
+    public async Task Test_TryGetAsFalse_Failure() {
         TrueOrFalse union = new True();
-        Assert.False(union.TryGetAsFalse(out False result));
-        Assert.Equal(default, result);
+        
+        await Assert.That(union.TryGetAsFalse(out False result)).IsFalse();
+        await Assert.That(result).IsTypeOf<False>()
+            .And.IsEqualTo(default);
     }
 
-    [Fact]
-    public void Test_ImplicitConversion() {
+    [Test]
+    public async Task Test_ImplicitConversion() {
         var value = new True();
         TrueOrFalse union = value;
-        Assert.True(union.IsTrue);
-        Assert.False(union.IsFalse);
-        Assert.IsType<True>(union.Value);
-        Assert.Equal(value, union.AsTrue);
+        
+        await Assert.That(union.IsTrue).IsTrue();
+        await Assert.That(union.IsFalse).IsFalse();
+        await Assert.That(union.Value).IsTypeOf<True>();
+        await Assert.That(union.AsTrue).IsTypeOf<True>();
     }
 
-    [Fact]
-    public void Test_SwitchCase_True() {
+    [Test]
+    public async Task Test_SwitchCase_True() {
         TrueOrFalse union = new True();
         switch (union) {
-            case {IsTrue: true, AsTrue: var trueValue}: 
-                Assert.Equal(new True(), trueValue);
+            case {IsTrue: true, AsTrue: var trueValue}:
+                await Assert.That(trueValue).IsTypeOf<True>().And.IsEqualTo(new True());
                 break;
             case {IsFalse: true, AsFalse: var falseValue}: 
-                Assert.Equal(new False(), falseValue);
+                await Assert.That(falseValue).IsTypeOf<False>().And.IsEqualTo(new False());
                 break;
         }
     }
 
-    [Fact]
-    public void Test_SwitchCase_False() {
+    [Test]
+    public async Task Test_SwitchCase_False() {
         TrueOrFalse union = new False();
         switch (union) {
-            case {IsTrue: true, AsTrue: var trueValue}: 
-                Assert.Equal(new True(), trueValue);
+            case {IsTrue: true, AsTrue: var trueValue}:
+                await Assert.That(trueValue).IsTypeOf<True>().And.IsEqualTo(new True());
                 break;
             case {IsFalse: true, AsFalse: var falseValue}: 
-                Assert.Equal(new False(), falseValue);
+                await Assert.That(falseValue).IsTypeOf<False>().And.IsEqualTo(new False());
                 break;
         }
     }

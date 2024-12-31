@@ -4,37 +4,47 @@
 using AterraEngine.Unions;
 using AterraEngine.Unions.Generators;
 using JetBrains.Annotations;
-using System;
-using System.Reflection;
-using System.Threading.Tasks;
-using Xunit;
+using Microsoft.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace Tests.AterraEngine.Unions.Generators;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
-    protected override Assembly[] ReferenceAssemblies { get; } = [
+public partial class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
+    protected override System.Reflection.Assembly[] ReferenceAssemblies { get; } = [
         typeof(object).Assembly,
-        typeof(IUnion<>).Assembly,
-        typeof(UnionAliasesAttribute).Assembly,
-        typeof(ValueTuple).Assembly, // For tuples
+        typeof(ValueTuple).Assembly,
         typeof(Attribute).Assembly,
         typeof(Console).Assembly,
-        Assembly.Load("System.Runtime")
+        System.Reflection.Assembly.Load("System.Runtime"),
+        System.Reflection.Assembly.Load("System.Threading.Tasks"),
+        
+        typeof(IUnion<>).Assembly,
+        typeof(UnionAliasesAttribute).Assembly,
     ];
 
     // I hae no Clue why this is not working.
     // It is working in production, but in these tests, it just breaks
     // I might be something related to the IncrementalGeneratorTest<> configuration, but I have no clue.
-    [Theory]
-    [InlineData(TrueOrFalseInput, TrueOrFalseOutput)]
-    [InlineData(TupleOrFalseInput, TupleOrFalseOutput)]
-    [InlineData(SucceededOrFalseInput, SucceededOrFalseOutput)]
-    [InlineData(NothingOrSomethingInput, NothingOrSomethingOutput)]
-    [InlineData(TrueFalseOrAliasInput, TrueFalseOrAliasOutput)]
+    [Test]
+    [Arguments(TrueOrFalseInput, TrueOrFalseOutput)]
+    [Arguments(TupleOrFalseInput, TupleOrFalseOutput)]
+    [Arguments(SucceededOrFalseInput, SucceededOrFalseOutput)]
+    [Arguments(NothingOrSomethingInput, NothingOrSomethingOutput)]
+    [Arguments(TrueFalseOrAliasInput, TrueFalseOrAliasOutput)]
     public async Task TestText(string inputText, string expectedOutput) {
-        await TestGeneratorAsync(inputText, expectedOutput, predicate: result => result.HintName.EndsWith("_Union.g.cs"));
+        
+        GeneratorDriverRunResult runResult = await RunGeneratorAsync(inputText);
+        
+        GeneratedSourceResult? generatedSource = runResult.Results
+            .SelectMany(result => result.GeneratedSources)
+            .SingleOrDefault(result => result.HintName.EndsWith("_Union.g.cs"));
+        
+        await Assert.That(generatedSource?.SourceText).IsNotNull();
+        await Assert
+            .That(FindEmptyLines().Replace(generatedSource?.SourceText.ToString().Trim() ?? string.Empty, ""))
+            .IsEqualTo(FindEmptyLines().Replace(expectedOutput.Trim(), ""));
     }
 
     #region Original Test
@@ -59,8 +69,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
         public readonly partial struct TrueOrFalse {
         
             #region True
-            public bool IsTrue { get; init; } = false;
-            public TestNamespace.True AsTrue {get; init;} = default!;
+            public bool IsTrue { get; private init; } = false;
+            public TestNamespace.True AsTrue {get; private init;} = default!;
             public bool TryGetAsTrue(out TestNamespace.True value) {
                 if (IsTrue) {
                     value = AsTrue;
@@ -76,8 +86,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
             #endregion
         
             #region False
-            public bool IsFalse { get; init; } = false;
-            public TestNamespace.False AsFalse {get; init;} = default!;
+            public bool IsFalse { get; private init; } = false;
+            public TestNamespace.False AsFalse {get; private init;} = default!;
             public bool TryGetAsFalse(out TestNamespace.False value) {
                 if (IsFalse) {
                     value = AsFalse;
@@ -162,8 +172,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
         public readonly partial struct TupleOrFalse {
         
             #region SuccessOfStringAndNoneTuple
-            public bool IsSuccessOfStringAndNoneTuple { get; init; } = false;
-            public (TestNamespace.Success<string>, TestNamespace.None) AsSuccessOfStringAndNoneTuple {get; init;} = default!;
+            public bool IsSuccessOfStringAndNoneTuple { get; private init; } = false;
+            public (TestNamespace.Success<string>, TestNamespace.None) AsSuccessOfStringAndNoneTuple {get; private init;} = default!;
             public bool TryGetAsSuccessOfStringAndNoneTuple(out (TestNamespace.Success<string>, TestNamespace.None) value) {
                 if (IsSuccessOfStringAndNoneTuple) {
                     value = AsSuccessOfStringAndNoneTuple;
@@ -179,8 +189,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
             #endregion
         
             #region False
-            public bool IsFalse { get; init; } = false;
-            public TestNamespace.False AsFalse {get; init;} = default!;
+            public bool IsFalse { get; private init; } = false;
+            public TestNamespace.False AsFalse {get; private init;} = default!;
             public bool TryGetAsFalse(out TestNamespace.False value) {
                 if (IsFalse) {
                     value = AsFalse;
@@ -265,8 +275,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
         public readonly partial struct SucceededOrFalse {
         
             #region Succeeded
-            public bool IsSucceeded { get; init; } = false;
-            public (TestNamespace.Success<string>, TestNamespace.None) AsSucceeded {get; init;} = default!;
+            public bool IsSucceeded { get; private init; } = false;
+            public (TestNamespace.Success<string>, TestNamespace.None) AsSucceeded {get; private init;} = default!;
             public bool TryGetAsSucceeded(out (TestNamespace.Success<string>, TestNamespace.None) value) {
                 if (IsSucceeded) {
                     value = AsSucceeded;
@@ -282,8 +292,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
             #endregion
         
             #region False
-            public bool IsFalse { get; init; } = false;
-            public TestNamespace.False AsFalse {get; init;} = default!;
+            public bool IsFalse { get; private init; } = false;
+            public TestNamespace.False AsFalse {get; private init;} = default!;
             public bool TryGetAsFalse(out TestNamespace.False value) {
                 if (IsFalse) {
                     value = AsFalse;
@@ -365,8 +375,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
         public readonly partial struct NothingOrSomething {
         
             #region Nothing
-            public bool IsNothing { get; init; } = false;
-            public TestNamespace.True AsNothing {get; init;} = default!;
+            public bool IsNothing { get; private init; } = false;
+            public TestNamespace.True AsNothing {get; private init;} = default!;
             public bool TryGetAsNothing(out TestNamespace.True value) {
                 if (IsNothing) {
                     value = AsNothing;
@@ -382,8 +392,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
             #endregion
         
             #region Something
-            public bool IsSomething { get; init; } = false;
-            public TestNamespace.False AsSomething {get; init;} = default!;
+            public bool IsSomething { get; private init; } = false;
+            public TestNamespace.False AsSomething {get; private init;} = default!;
             public bool TryGetAsSomething(out TestNamespace.False value) {
                 if (IsSomething) {
                     value = AsSomething;
@@ -466,8 +476,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
         public readonly partial struct TrueFalseOrAlias {
         
             #region True
-            public bool IsTrue { get; init; } = false;
-            public TestNamespace.True AsTrue {get; init;} = default!;
+            public bool IsTrue { get; private init; } = false;
+            public TestNamespace.True AsTrue {get; private init;} = default!;
             public bool TryGetAsTrue(out TestNamespace.True value) {
                 if (IsTrue) {
                     value = AsTrue;
@@ -483,8 +493,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
             #endregion
         
             #region False
-            public bool IsFalse { get; init; } = false;
-            public TestNamespace.False AsFalse {get; init;} = default!;
+            public bool IsFalse { get; private init; } = false;
+            public TestNamespace.False AsFalse {get; private init;} = default!;
             public bool TryGetAsFalse(out TestNamespace.False value) {
                 if (IsFalse) {
                     value = AsFalse;
@@ -500,8 +510,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
             #endregion
         
             #region Alias
-            public bool IsAlias { get; init; } = false;
-            public TestNamespace.Done AsAlias {get; init;} = default!;
+            public bool IsAlias { get; private init; } = false;
+            public TestNamespace.Done AsAlias {get; private init;} = default!;
             public bool TryGetAsAlias(out TestNamespace.Done value) {
                 if (IsAlias) {
                     value = AsAlias;
@@ -566,4 +576,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
         }
         """;
     #endregion
+    
+    [GeneratedRegex(@"^\s*$\n|\r", RegexOptions.Multiline)]
+    private static partial Regex FindEmptyLines();
 }

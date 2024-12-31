@@ -12,7 +12,7 @@
 
         <IsPackable>true</IsPackable>
         <PackageId>AterraEngine.Unions.Generators</PackageId>
-        <Version>2.5.0</Version>
+        <Version>2.6.0</Version>
         <Authors>Anna Sas</Authors>
         <Description>The Source Generator for AterraEngine.Unions</Description>
         <PackageProjectUrl>https://github.com/AterraEngine/unions-cs/</PackageProjectUrl>
@@ -29,14 +29,16 @@
         <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
         <None Include="..\..\README.md" Pack="true" PackagePath="" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.11.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0">
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0">
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
     </ItemGroup>
@@ -45,4 +47,4 @@
         <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     </ItemGroup>
 
-</Project>
+    </Project>

@@ -46,12 +46,20 @@ public class UnionGenerator : IIncrementalGenerator {
     /// <returns>
     ///     A boolean value indicating whether the provided syntax node is a valid union struct candidate.
     /// </returns>
-    private static bool IsUnionStructCandidate(SyntaxNode node, CancellationToken _) =>
-        node is
-            (StructDeclarationSyntax or RecordDeclarationSyntax { ClassOrStructKeyword.ValueText: "struct" })
-            and BaseTypeDeclarationSyntax { BaseList.Types.Count : > 0 } baseTypeDeclarationSyntax
-        && baseTypeDeclarationSyntax.BaseList.Types[0].Type is GenericNameSyntax genericNameSyntax
-        && genericNameSyntax.Identifier.ValueText.Contains("IUnion");
+    private static bool IsUnionStructCandidate(SyntaxNode node, CancellationToken _) {
+        if (node is
+            not ((StructDeclarationSyntax or RecordDeclarationSyntax { ClassOrStructKeyword.ValueText: "struct" })
+            and BaseTypeDeclarationSyntax { BaseList.Types.Count : > 0 } baseTypeDeclarationSyntax)) return false;
+
+        switch (baseTypeDeclarationSyntax.BaseList.Types[0].Type) {
+            case GenericNameSyntax { Identifier.ValueText: var valueText }:
+                return valueText.Contains("IUnion");
+            case QualifiedNameSyntax qualifiedNameSyntax:
+                return qualifiedNameSyntax.ToFullString().Contains("IUnion");
+            default:
+                return false;
+        }
+    }
 
     /// <summary>
     ///     Gathers information about a struct or record struct that implements the IUnion interface.
