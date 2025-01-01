@@ -54,7 +54,7 @@ public class UnionAliasesAttributeTest {
     [Test]
     public async Task UnionAliasesAttribute_ShouldHaveCorrectAliases_WhenAliasT0AndAliasT1AreProvided() {
         // Arrange & Act
-        var attribute = new UnionAliasesAttribute(aliasT0: "Nothing", aliasT1: "Something");
+        var attribute = new UnionAliasesAttribute("Nothing", "Something");
 
         // Assert
         await Assert.That(attribute.Aliases[0]).IsTypeOf<string>().And.IsEqualTo("Nothing");

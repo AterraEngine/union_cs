@@ -5,23 +5,25 @@ using AterraEngine.Unions;
 using AterraEngine.Unions.Generators;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using Assembly=System.Reflection.Assembly;
 
 namespace Tests.AterraEngine.Unions.Generators;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
-    protected override System.Reflection.Assembly[] ReferenceAssemblies { get; } = [
+    protected override Assembly[] ReferenceAssemblies { get; } = [
         typeof(object).Assembly,
         typeof(ValueTuple).Assembly,
         typeof(Attribute).Assembly,
         typeof(Console).Assembly,
-        System.Reflection.Assembly.Load("System.Runtime"),
-        System.Reflection.Assembly.Load("System.Threading.Tasks"),
-        
+        Assembly.Load("System.Runtime"),
+        Assembly.Load("System.Threading.Tasks"),
+
         typeof(IUnion<>).Assembly,
-        typeof(UnionAliasesAttribute).Assembly,
+        typeof(UnionAliasesAttribute).Assembly
     ];
 
     // I hae no Clue why this is not working.
@@ -34,18 +36,21 @@ public partial class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerat
     [Arguments(NothingOrSomethingInput, NothingOrSomethingOutput)]
     [Arguments(TrueFalseOrAliasInput, TrueFalseOrAliasOutput)]
     public async Task TestText(string inputText, string expectedOutput) {
-        
+
         GeneratorDriverRunResult runResult = await RunGeneratorAsync(inputText);
-        
+
         GeneratedSourceResult? generatedSource = runResult.Results
             .SelectMany(result => result.GeneratedSources)
             .SingleOrDefault(result => result.HintName.EndsWith("_Union.g.cs"));
-        
+
         await Assert.That(generatedSource?.SourceText).IsNotNull();
         await Assert
             .That(FindEmptyLines().Replace(generatedSource?.SourceText.ToString().Trim() ?? string.Empty, ""))
             .IsEqualTo(FindEmptyLines().Replace(expectedOutput.Trim(), ""));
     }
+
+    [GeneratedRegex(@"^\s*$\n|\r", RegexOptions.Multiline)]
+    private static partial Regex FindEmptyLines();
 
     #region Original Test
     [LanguageInjection("csharp")] private const string TrueOrFalseInput = """
@@ -143,7 +148,7 @@ public partial class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerat
                 throw new ArgumentException("Union does not contain a value");
             }
             #endregion
-        
+
         }
         """;
     #endregion
@@ -246,7 +251,7 @@ public partial class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerat
                 throw new ArgumentException("Union does not contain a value");
             }
             #endregion
-        
+
         }
         """;
     #endregion
@@ -349,11 +354,11 @@ public partial class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerat
                 throw new ArgumentException("Union does not contain a value");
             }
             #endregion
-        
+
         }
         """;
     #endregion
-    
+
     #region Alias All Test
     [LanguageInjection("csharp")] private const string NothingOrSomethingInput = """
         namespace TestNamespace;
@@ -449,11 +454,11 @@ public partial class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerat
                 throw new ArgumentException("Union does not contain a value");
             }
             #endregion
-        
+
         }
         """;
     #endregion
-    
+
     #region Alias Skip Test
     [LanguageInjection("csharp")] private const string TrueFalseOrAliasInput = """
         namespace TestNamespace;
@@ -572,11 +577,8 @@ public partial class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerat
                 throw new ArgumentException("Union does not contain a value");
             }
             #endregion
-        
+
         }
         """;
     #endregion
-    
-    [GeneratedRegex(@"^\s*$\n|\r", RegexOptions.Multiline)]
-    private static partial Regex FindEmptyLines();
 }

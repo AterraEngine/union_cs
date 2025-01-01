@@ -94,13 +94,15 @@
 //     public static implicit operator GenericUnionWithAlias<T>(T value) => new Success<T>(value);
 // }
 
-using System;
-namespace TestNamespace;
+using AterraEngine.Unions;
 
+namespace TestNamespace;
 public readonly struct Success<T> {
     public T Value { get; init; }
 }
+
 public struct None;
+
 public struct False;
-                
-public readonly partial struct TupleOrFalse() : AterraEngine.Unions.IUnion<(Success<string>, None), False> { }
+
+public readonly partial struct TupleOrFalse() : IUnion<(Success<string>, None), False> {}

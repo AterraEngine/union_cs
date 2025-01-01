@@ -1,0 +1,34 @@
+﻿{
+  "profiles": {
+    "Version Bump : Major": {
+      "_readme": "will update the 'patch' section of the semantic version (x.0.0)",
+      "commandName": "Project",
+      "commandLineArgs": "git-version-bump --section=\"major\" --projects=\"%PROJECTS%\" --push"
+    },
+    "Version Bump : Minor": {
+      "_readme": "will update the 'patch' section of the semantic version (0.x.0)",
+      "commandName": "Project",
+      "commandLineArgs": "git-version-bump --section=\"minor\" --projects=\"%PROJECTS%\" --push"
+    },
+    "Version Bump : Patch": {
+      "_readme": "will update the 'patch' section of the semantic version (0.0.x)",
+      "commandName": "Project",
+      "commandLineArgs": "git-version-bump --section=\"patch\" --projects=\"%PROJECTS%\" --push"
+    },
+    "Version Bump : Preview": {
+      "_readme": "will update the 'preview' section of the semantic version (0.0.0-preview.x)",
+      "commandName": "Project",
+      "commandLineArgs": "git-version-bump --section=\"preview\" --projects=\"%PROJECTS%\" --push"
+    },
+    "Version Bump : Manual": {
+      "_readme": "useful for setting a preview for an upcoming version. Will ask for a prompt of the new version string",
+      "commandName": "Project",
+      "commandLineArgs": "git-version-bump --section=\"manual\" --projects=\"%PROJECTS%\" --push"
+    },
+    "Download Icon": {
+      "_readme": "downloads a png to a specific location to then be used by nuget packages as a built in icon",
+      "commandName": "Project",
+      "commandLineArgs": "nuget-download-icon --origin=\"https://avatars.githubusercontent.com/u/102103683\" --projects=\"%PROJECTS%\""
+    }
+  }
+}

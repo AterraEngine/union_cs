@@ -20,7 +20,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks.AterraEngine.Uni
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{BBCA14D3-A8A1-4537-BD8C-C9C97DAF1F33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AterraEngine.Unions.Tools", "tools\AterraEngine.Unions.Tools\AterraEngine.Unions.Tools.csproj", "{3824A99F-DD8B-4699-A51A-D5260996D4B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.AterraEngine.Unions", "src\Tools.AterraEngine.Unions\Tools.AterraEngine.Unions.csproj", "{3824A99F-DD8B-4699-A51A-D5260996D4B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

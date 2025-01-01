@@ -131,7 +131,9 @@ public class UnionGenerator : IIncrementalGenerator {
 
         // ReSharper disable once InvertIf
         if (aliasAttributeData is { ConstructorArguments : { Length: > 0 } arguments }) {
-            for (int i = 0; i < maxLength; i++) aliases[i] = arguments[i].Value as string;
+            for (int i = 0; i < maxLength; i++) {
+                aliases[i] = arguments[i].Value as string;
+            }
         }
 
         return typeArguments.Zip(aliases, resultSelector: (type, alias) => (type, alias))

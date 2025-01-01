@@ -8,21 +8,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
-      <PackageReference Include="Dunet" Version="1.11.2" />
-      <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" />
-      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
-      <PackageReference Include="OneOf" Version="3.0.271" />
-      <PackageReference Include="OneOf.SourceGenerator" Version="3.0.271" />
+        <PackageReference Include="BenchmarkDotNet" Version="0.14.0"/>
+        <PackageReference Include="Dunet" Version="1.11.2"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0"/>
+        <PackageReference Include="OneOf" Version="3.0.271"/>
+        <PackageReference Include="OneOf.SourceGenerator" Version="3.0.271"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\AterraEngine.Unions.Generators\AterraEngine.Unions.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-      <ProjectReference Include="..\..\src\AterraEngine.Unions\AterraEngine.Unions.csproj" />
+        <ProjectReference Include="..\..\src\AterraEngine.Unions.Generators\AterraEngine.Unions.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\..\src\AterraEngine.Unions\AterraEngine.Unions.csproj"/>
     </ItemGroup>
 
 </Project>

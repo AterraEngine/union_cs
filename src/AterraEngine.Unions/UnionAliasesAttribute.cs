@@ -2,18 +2,17 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace AterraEngine.Unions;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-/// Specifies custom alias names for the generic type parameters of a union struct.
+///     Specifies custom alias names for the generic type parameters of a union struct.
 /// </summary>
 /// <remarks>
-/// This attribute is used to assign meaningful alias names to the individual type arguments
-/// in generic union structs. The aliases can provide clarity in the code when working with unions
-/// that encapsulate multiple types. Names specified in this attribute correspond to the type parameters
-/// (T0, T1, ..., T15) in the order they appear in the union struct.
+///     This attribute is used to assign meaningful alias names to the individual type arguments
+///     in generic union structs. The aliases can provide clarity in the code when working with unions
+///     that encapsulate multiple types. Names specified in this attribute correspond to the type parameters
+///     (T0, T1, ..., T15) in the order they appear in the union struct.
 /// </remarks>
 /// <param name="aliasT0">Optional alias for type parameter T0.</param>
 /// <param name="aliasT1">Optional alias for type parameter T1.</param>
@@ -71,5 +70,4 @@ public class UnionAliasesAttribute(
         aliasT14,
         aliasT15
     ];
-    
 }

@@ -4,16 +4,15 @@
 using AterraEngine.Unions;
 
 namespace Tests.AterraEngine.Unions.Unions;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class UnionTests {
-    
+
     [Test]
     public async Task Test_UnionHasT0() {
         Union<string, int> union = "Anna";
-        
+
         await Assert.That(union.IsT0).IsTrue();
         await Assert.That(union.IsT1).IsFalse();
         await Assert.That(union.Value).IsTypeOf<string>();

@@ -8,11 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CliArgsParser" Version="2.2.7" />
+        <ProjectReference Include="..\..\src\AterraEngine.Unions\AterraEngine.Unions.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\AterraEngine.Unions\AterraEngine.Unions.csproj" />
+        <PackageReference Include="CodeOfChaos.CliArgsParser.Library" Version="4.3.3"/>
     </ItemGroup>
 
 </Project>

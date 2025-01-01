@@ -10,12 +10,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
-        <PackageReference Include="TUnit" Version="0.6.15" />
+        <PackageReference Include="JetBrains.Annotations" Version="2024.3.0"/>
+        <PackageReference Include="TUnit" Version="0.6.15"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\AterraEngine.Unions\AterraEngine.Unions.csproj" />
+        <ProjectReference Include="..\..\src\AterraEngine.Unions\AterraEngine.Unions.csproj"/>
     </ItemGroup>
 
 </Project>
