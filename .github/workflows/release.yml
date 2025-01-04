@@ -10,20 +10,9 @@ on:
 
 jobs:
     build:
+        
         runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                    - framework: net8.0
-                      projects: "src/AterraEngine.Unions"
-                    - framework: net9.0
-                      projects: "src/AterraEngine.Unions"
-                    - framework: netstandard2.0
-                      projects: "src/AterraEngine.Unions"
-                    - framework: netstandard2.0
-                      projects: "src/AterraEngine.Unions.Generators"
-
+        
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
@@ -36,41 +25,12 @@ jobs:
             - name: Restore dependencies
               run: dotnet restore Unions.sln
 
-            - name: Build specific projects
-              run: dotnet build ${{ matrix.projects }} --configuration Release --no-restore --framework ${{ matrix.framework }}
-
-            - name: Save build artifacts
-              run: |
-                  mkdir -p ${{ github.workspace }}/artifacts
-                  find . -name '*.nupkg' -exec cp {} ${{ github.workspace }}/artifacts/ \;
-
-            - name: Upload build artifacts
-              uses: actions/upload-artifact@v3
-              with:
-                  name: nuget-packages # Name of the artifact
-                  path: ${{ github.workspace }}/artifacts # Path to collect artifacts
-
-    publish:
-        needs: build # Wait for the build job to finish
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
-
-            - name: Setup .NET
-              uses: actions/setup-dotnet@v3
-              with:
-                  dotnet-version: '9.x'
-
-            - name: Download build artifacts
-              uses: actions/download-artifact@v3
-              with:
-                  name: nuget-packages # Name of the uploaded artifact to fetch
-                  path: artifacts # Path to extract artifacts in this job workspace
+            - name: Build
+              run: dotnet build Unions.sln --configuration Release --no-restore
 
             - name: Publish to NuGet
               env:
-                  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }} # NuGet API Key from GitHub secrets
+                  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
               run: |
-                  dotnet nuget push artifacts/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+                  dotnet nuget push src/AterraEngine.Unions/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+                  dotnet nuget push src/AterraEngine.Unions.Generators/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
