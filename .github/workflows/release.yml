@@ -17,12 +17,8 @@ jobs:
                 include:
                     - framework: net8.0
                       projects: "src/AterraEngine.Unions"
-                    - framework: net8.0
-                      projects: "src/AterraEngine.Unions.Generators"
                     - framework: net9.0
                       projects: "src/AterraEngine.Unions"
-                    - framework: net9.0
-                      projects: "src/AterraEngine.Unions.Generators"
                     - framework: netstandard2.0
                       projects: "src/AterraEngine.Unions"
                     - framework: netstandard2.0
