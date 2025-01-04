@@ -11,7 +11,13 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                framework: [net8.0, net9.0, netstandard2.0] # Multiple target frameworks, because we design for multiple
+                include:
+                    - framework: net8.0
+                      projects: "src/AterraEngine.Unions src/AterraEngine.Unions.Generators"
+                    - framework: net9.0
+                      projects: "src/AterraEngine.Unions src/AterraEngine.Unions.Generators"
+                    - framework: netstandard2.0
+                      projects: "src/AterraEngine.Unions src/AterraEngine.Unions.Generators"
 
         steps:
             - name: Checkout repository
@@ -25,8 +31,8 @@ jobs:
             - name: Restore dependencies
               run: dotnet restore Unions.sln
 
-            - name: Build for framework ${{ matrix.framework }}
-              run: dotnet build Unions.sln --configuration Release --no-restore --framework ${{ matrix.framework }}
+            - name: Build specific projects
+              run: dotnet build ${{ matrix.projects }} --configuration Release --no-restore --framework ${{ matrix.framework }}
 
             - name: Save build artifacts
               run: |
