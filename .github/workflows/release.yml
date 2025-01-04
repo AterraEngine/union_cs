@@ -1,41 +1,65 @@
 name: Publish Packages
 
 on:
-  push:
-    tags:
-      - 'v*.*.*' # Match version tags like v1.0.0
+    push:
+        tags:
+            - 'v*.*.*' # Match version tags like v1.0.0
 
 jobs:
-  build:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                framework: [net8.0, net9.0, netstandard2.0] # Multiple target frameworks, because we design for multiple
 
-    runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
-    strategy:
-        fail-fast: false
-        matrix:
-            framework: [net8.0, net9.0, netstandard2.0]
-            project:
-                - src/AterraEngine.Unions
-                - src/AterraEngine.Unions.Generators
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v3
+              with:
+                  dotnet-version: '9.x'
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+            - name: Restore dependencies
+              run: dotnet restore Unions.sln
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '9.x'
+            - name: Build for framework ${{ matrix.framework }}
+              run: dotnet build Unions.sln --configuration Release --no-restore --framework ${{ matrix.framework }}
 
-      - name: Restore dependencies
-        run: dotnet restore Unions.sln
-        
-      - name: Build for framework ${{ matrix.framework }}
-        run: dotnet build ${{ matrix.project }} --configuration Release --framework ${{ matrix.framework }}
+            - name: Save build artifacts
+              run: |
+                  mkdir -p ${{ github.workspace }}/artifacts
+                  find . -name '*.nupkg' -exec cp {} ${{ github.workspace }}/artifacts/ \;
 
-      - name: Publish to NuGet
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: |
-          dotnet nuget push src/AterraEngine.Unions/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push src/AterraEngine.Unions.Generators/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v3
+              with:
+                  name: nuget-packages # Name of the artifact
+                  path: ${{ github.workspace }}/artifacts # Path to collect artifacts
+
+    publish:
+        needs: build # Wait for the build job to finish
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v3
+              with:
+                  dotnet-version: '9.x'
+
+            - name: Download build artifacts
+              uses: actions/download-artifact@v3
+              with:
+                  name: nuget-packages # Name of the uploaded artifact to fetch
+                  path: artifacts # Path to extract artifacts in this job workspace
+
+            - name: Publish to NuGet
+              env:
+                  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }} # NuGet API Key from GitHub secrets
+              run: |
+                  dotnet nuget push artifacts/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
