@@ -10,6 +10,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+        fail-fast: false
+        matrix:
+            framework: [net8.0, net9.0, netstandard2.0]
+            project:
+                - src/AterraEngine.Unions
+                - src/AterraEngine.Unions.Generators
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -21,9 +29,9 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore Unions.sln
-
-      - name: Build
-        run: dotnet build Unions.sln --configuration Release --no-restore
+        
+      - name: Build for framework ${{ matrix.framework }}
+        run: dotnet build ${{ matrix.project }} --configuration Release --framework ${{ matrix.framework }}
 
       - name: Publish to NuGet
         env:

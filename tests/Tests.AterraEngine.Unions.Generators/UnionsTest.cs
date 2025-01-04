@@ -5,15 +5,13 @@ using AterraEngine.Unions;
 using AterraEngine.Unions.Generators;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using Assembly=System.Reflection.Assembly;
 
 namespace Tests.AterraEngine.Unions.Generators;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public partial class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
+public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
     protected override Assembly[] ReferenceAssemblies { get; } = [
         typeof(object).Assembly,
         typeof(ValueTuple).Assembly,
@@ -44,13 +42,9 @@ public partial class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerat
             .SingleOrDefault(result => result.HintName.EndsWith("_Union.g.cs"));
 
         await Assert.That(generatedSource?.SourceText).IsNotNull();
-        await Assert
-            .That(FindEmptyLines().Replace(generatedSource?.SourceText.ToString().Trim() ?? string.Empty, ""))
-            .IsEqualTo(FindEmptyLines().Replace(expectedOutput.Trim(), ""));
+        await Assert.That(generatedSource?.SourceText.ToString())
+            .IsEqualTo(expectedOutput).IgnoringWhitespace().WithTrimming();
     }
-
-    [GeneratedRegex(@"^\s*$\n|\r", RegexOptions.Multiline)]
-    private static partial Regex FindEmptyLines();
 
     #region Original Test
     [LanguageInjection("csharp")] private const string TrueOrFalseInput = """
