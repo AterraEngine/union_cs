@@ -27,7 +27,16 @@ jobs:
 
             - name: Build
               run: dotnet build Unions.sln --configuration Release --no-restore
-
+            
+            # Ensure that the tests must pass 
+            # The job will fail automatically if any test fails because `dotnet test` exits with a non-zero code
+            - name: Run tests - Tests.AterraEngine.Unions
+              run: dotnet run -c Release --no-restore --no-build
+              working-directory: "tests/Tests.AterraEngine.Unions"
+            - name: Run tests - Tests.AterraEngine.Unions.Generators
+              run: dotnet run -c Release --no-restore --no-build
+              working-directory: "tests/Tests.AterraEngine.Unions.Generators"
+                        
             - name: Publish to NuGet
               env:
                   NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
