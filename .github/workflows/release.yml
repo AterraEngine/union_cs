@@ -6,7 +6,6 @@ on:
             - 'v*.*.*' # Match version tags like v1.0.0
     
     workflow_dispatch: 
-        
 
 jobs:
     build:
@@ -31,10 +30,10 @@ jobs:
             # Ensure that the tests must pass 
             # The job will fail automatically if any test fails because `dotnet test` exits with a non-zero code
             - name: Run tests - Tests.AterraEngine.Unions
-              run: dotnet run -c Release --no-restore --no-build
+              run: dotnet run -c Release --no-restore --no-build --framework net9.0
               working-directory: "tests/Tests.AterraEngine.Unions"
             - name: Run tests - Tests.AterraEngine.Unions.Generators
-              run: dotnet run -c Release --no-restore --no-build
+              run: dotnet run -c Release --no-restore --no-build --framework net9.0
               working-directory: "tests/Tests.AterraEngine.Unions.Generators"
                         
             - name: Publish to NuGet
