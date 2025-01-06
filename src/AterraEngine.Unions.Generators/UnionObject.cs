@@ -12,7 +12,7 @@ namespace AterraEngine.Unions.Generators;
 /// <summary>
 ///     Represents a union object structure used in the generation of union types.
 /// </summary>
-public readonly struct UnionObject(string structName, string nameSpace, Dictionary<ITypeSymbol, string?> typesWithAliases, ImmutableArray<string> typeParameters, bool isRecordStruct) {
+public readonly struct UnionObject(string structName, string nameSpace, Dictionary<ITypeSymbol, string?> typesWithAliases, ImmutableArray<string> typeParameters, bool isRecordStruct, int extraGeneratorFlags) {
     /// <summary>
     ///     Gets the name of the union struct associated with this instance.
     /// </summary>
@@ -37,6 +37,8 @@ public readonly struct UnionObject(string structName, string nameSpace, Dictiona
     ///     Indicates whether the struct declared in the union object is a record struct.
     /// </summary>
     public bool IsRecordStruct { get; } = isRecordStruct;
+    
+    public int ExtraGeneratorFlags { get; } = extraGeneratorFlags;
 
     /// <summary>
     ///     Retrieves the structured class name of the union object, including its type parameters if applicable.
@@ -44,4 +46,6 @@ public readonly struct UnionObject(string structName, string nameSpace, Dictiona
     public string GetStructClassName() => TypeParameters.Length > 0
         ? $"{StructName}<{string.Join(", ", TypeParameters)}>"
         : StructName;
+
+    public bool HasFlagGenerateFrom() => (ExtraGeneratorFlags & 0b1) != 0;
 }

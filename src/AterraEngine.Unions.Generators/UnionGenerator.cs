@@ -80,20 +80,23 @@ public class UnionGenerator : IIncrementalGenerator {
             _ => false
         };
 
-        INamedTypeSymbol? namedTypeSymbol = context.Node switch {
-            RecordDeclarationSyntax recordDeclarationSyntax => context.SemanticModel.GetDeclaredSymbol(recordDeclarationSyntax),
-            StructDeclarationSyntax structDeclarationSyntax => context.SemanticModel.GetDeclaredSymbol(structDeclarationSyntax),
+        INamedTypeSymbol namedTypeSymbol = context.Node switch {
+            RecordDeclarationSyntax recordDeclarationSyntax => context.SemanticModel.GetDeclaredSymbol(recordDeclarationSyntax)!,
+            StructDeclarationSyntax structDeclarationSyntax => context.SemanticModel.GetDeclaredSymbol(structDeclarationSyntax)!,
             _ => throw new ArgumentOutOfRangeException()// Should never happen because we check in IsUnionStructCandidate
         };
 
         // Check if the struct implements IUnion<>
-        INamedTypeSymbol iUnionInterface = namedTypeSymbol?.Interfaces.First(
+        INamedTypeSymbol iUnionInterface = namedTypeSymbol.Interfaces.First(
             i => i.Name.Equals("IUnion") && i.IsGenericType
-        )!;
+        );
 
         // Fetch aliases from the UnionAliases attribute
-        AttributeData? aliasAttributeData = namedTypeSymbol!.GetAttributes()
+        AttributeData? aliasAttributeData = namedTypeSymbol.GetAttributes()
             .FirstOrDefault(attr => attr.AttributeClass?.Name == "UnionAliasesAttribute");
+        
+        AttributeData? extraAttributeData = namedTypeSymbol.GetAttributes()
+            .FirstOrDefault(attr => attr.AttributeClass?.Name == "UnionExtraAttribute");
 
         Dictionary<ITypeSymbol, string?> typesWithAliases = ExtractTypesWithAliases(
             aliasAttributeData,
@@ -105,7 +108,8 @@ public class UnionGenerator : IIncrementalGenerator {
             namedTypeSymbol.ContainingNamespace.ToDisplayString(),
             typesWithAliases,
             [..namedTypeSymbol.TypeParameters.Select(tp => tp.ToDisplayString())],
-            isRecordStruct
+            isRecordStruct,
+            extraAttributeData?.ConstructorArguments.FirstOrDefault().Value as int? ?? 0
         );
     }
 
@@ -220,7 +224,17 @@ public class UnionGenerator : IIncrementalGenerator {
                 .AppendLine($"    public static implicit operator {unionObject.GetStructClassName()}({sv.Type} value) => new {unionObject.GetStructClassName()}() {{")
                 .AppendLine($"        {sv.IsAlias} = true,")
                 .AppendLine($"        {sv.AsAlias} = value")
-                .AppendLine("    };")
+                .AppendLine("    };");
+
+            if (unionObject.HasFlagGenerateFrom()) {
+                stringBuilder
+                    .AppendLine($"    public {unionObject.GetStructClassName()} From{sv.Alias}({sv.Type} value) => new {unionObject.GetStructClassName()}() {{")
+                    .AppendLine($"        {sv.IsAlias} = true,")
+                    .AppendLine($"        {sv.AsAlias} = value")
+                    .AppendLine("    };");
+            }
+            
+            stringBuilder
                 .AppendLine("    #endregion")
                 .AppendLine();
         }
@@ -247,7 +261,6 @@ public class UnionGenerator : IIncrementalGenerator {
         stringBuilder.AppendLine("        switch (this) {");
         foreach (UnionStringValues sv in typeToStringValues.Values) {
             stringBuilder.AppendLine($"            case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : return {sv.Alias.ToLowerInvariant()}Case(value); ");
-
         }
 
         stringBuilder.AppendLine("        }");

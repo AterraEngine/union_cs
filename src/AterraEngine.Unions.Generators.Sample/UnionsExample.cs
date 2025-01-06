@@ -105,4 +105,5 @@ public struct None;
 
 public struct False;
 
+[UnionExtra(UnionExtra.GenerateFrom)]
 public readonly partial struct TupleOrFalse() : IUnion<(Success<string>, None), False> {}
