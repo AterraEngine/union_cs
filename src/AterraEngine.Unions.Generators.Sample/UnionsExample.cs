@@ -102,5 +102,5 @@ public readonly struct SuccessMany<T> : AterraEngine.Unions.IValues<T> {
     public T Values { get; init; }
 }
 
-[AterraEngine.Unions.UnionExtra(AterraEngine.Unions.UnionExtra.GenerateAsValue)]
+[AterraEngine.Unions.UnionExtra(AterraEngine.Unions.UnionExtra.GenerateAsValue | AterraEngine.Unions.UnionExtra.GenerateFrom)]
 public readonly partial struct TupleOrFalse() : AterraEngine.Unions.IUnion<Success<string>, SuccessMany<int[]>>;

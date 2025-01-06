@@ -228,7 +228,7 @@ public class UnionGenerator : IIncrementalGenerator {
 
             if (unionObject.HasFlagGenerateFrom()) {
                 stringBuilder
-                    .AppendLine($"    public {unionObject.GetStructClassName()} From{sv.Alias}({sv.Type} value) => new {unionObject.GetStructClassName()}() {{")
+                    .AppendLine($"    public static {unionObject.GetStructClassName()} From{sv.Alias}({sv.Type} value) => new {unionObject.GetStructClassName()}() {{")
                     .AppendLine($"        {sv.IsAlias} = true,")
                     .AppendLine($"        {sv.AsAlias} = value")
                     .AppendLine("    };");

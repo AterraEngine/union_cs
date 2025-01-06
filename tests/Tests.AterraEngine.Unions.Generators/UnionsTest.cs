@@ -34,6 +34,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
     [Arguments(NothingOrSomethingInput, NothingOrSomethingOutput)]
     [Arguments(TrueFalseOrAliasInput, TrueFalseOrAliasOutput)]
     [Arguments(UnionExtraGenerateFromInput, UnionExtraGenerateFromOutput)]
+    [Arguments(UnionExtraGenerateAsValueInput, UnionExtraGenerateAsValueOutput)]
     public async Task TestText(string inputText, string expectedOutput) {
 
         GeneratorDriverRunResult runResult = await RunGeneratorAsync(inputText);
@@ -618,7 +619,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
                 IsSuccessOfStringAndNoneTuple = true,
                 AsSuccessOfStringAndNoneTuple = value
             };
-            public TupleOrFalse FromSuccessOfStringAndNoneTuple((TestNamespace.Success<string>, TestNamespace.None) value) => new TupleOrFalse() {
+            public static TupleOrFalse FromSuccessOfStringAndNoneTuple((TestNamespace.Success<string>, TestNamespace.None) value) => new TupleOrFalse() {
                 IsSuccessOfStringAndNoneTuple = true,
                 AsSuccessOfStringAndNoneTuple = value
             };
@@ -639,7 +640,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
                 IsFalse = true,
                 AsFalse = value
             };
-            public TupleOrFalse FromFalse(TestNamespace.False value) => new TupleOrFalse() {
+            public static TupleOrFalse FromFalse(TestNamespace.False value) => new TupleOrFalse() {
                 IsFalse = true,
                 AsFalse = value
             };
