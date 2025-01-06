@@ -37,8 +37,6 @@ public readonly struct UnionObject(string structName, string nameSpace, Dictiona
     ///     Indicates whether the struct declared in the union object is a record struct.
     /// </summary>
     public bool IsRecordStruct { get; } = isRecordStruct;
-    
-    public int ExtraGeneratorFlags { get; } = extraGeneratorFlags;
 
     /// <summary>
     ///     Retrieves the structured class name of the union object, including its type parameters if applicable.
@@ -47,5 +45,37 @@ public readonly struct UnionObject(string structName, string nameSpace, Dictiona
         ? $"{StructName}<{string.Join(", ", TypeParameters)}>"
         : StructName;
 
-    public bool HasFlagGenerateFrom() => (ExtraGeneratorFlags & 0b1) != 0;
+    public bool HasFlagGenerateFrom() =>    (extraGeneratorFlags & 0b1) != 0;
+    public bool HasFlagGenerateAsValue() => (extraGeneratorFlags & 0b10) != 0;
+
+    public bool IsValidGenerateAsValue(ITypeSymbol typeSymbol, out bool isValues, out string valueTypeName, out string notNullWhen, out string nullable) {
+        // Check if the typeSymbol inherits from IValue<T> or IValues<T>
+        isValues = false;
+        valueTypeName = string.Empty;
+        notNullWhen = string.Empty;
+        nullable = string.Empty;
+        
+        if (typeSymbol.AllInterfaces.IsEmpty) return false;
+        foreach (INamedTypeSymbol? @interface in typeSymbol.AllInterfaces) {
+            string name = @interface.ConstructedFrom.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            switch (name) {
+                case "global::AterraEngine.Unions.IValue<T>": {
+                    isValues = false; 
+                    break;
+                }
+
+                case "global::AterraEngine.Unions.IValues<T>": {
+                    isValues = true;
+                    break;
+                }
+                default: continue;
+            }
+            
+            valueTypeName = @interface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            notNullWhen = @interface.TypeArguments[0].IsReferenceType ? "[NotNullWhen(true)] " : notNullWhen;
+            nullable = @interface.TypeArguments[0].IsReferenceType ? "?" : nullable;
+            return true;
+        }
+        return false;
+    }
 }

@@ -234,6 +234,19 @@ public class UnionGenerator : IIncrementalGenerator {
                     .AppendLine("    };");
             }
             
+            if (unionObject.HasFlagGenerateAsValue() && unionObject.IsValidGenerateAsValue(sv.TypeSymbol, out bool isValues, out string valueTypeName, out string notNullWhen, out string nullable)) {
+                string s = isValues ? "s" : string.Empty;
+                stringBuilder
+                    .AppendLine($"    public bool TryGet{sv.AsAlias}Value{s}({notNullWhen}out {valueTypeName}{nullable} value{s}) {{")
+                    .AppendLine($"        if ({sv.IsAlias}{sv.TypeIsNotNull}) {{")
+                    .AppendLine($"            value{s} = {sv.AsAlias}.Value{s};")
+                    .AppendLine( "            return true;")
+                    .AppendLine( "        }")
+                    .AppendLine($"        value{s} = default;")
+                    .AppendLine( "        return false;")
+                    .AppendLine( "    }");
+            }
+            
             stringBuilder
                 .AppendLine("    #endregion")
                 .AppendLine();

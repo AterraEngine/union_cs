@@ -24,6 +24,14 @@ namespace AterraEngine.Unions.Generators;
 ///     an alias will be automatically generated based on the type symbol.
 /// </param>
 public readonly struct UnionStringValues(ITypeSymbol type, string? alias) {
+
+    /// <summary>
+    /// Represents a symbol that describes the underlying type of a union.
+    /// This variable is used to store the type information for generating
+    /// utilities and metadata related to the union.
+    /// </summary>
+    public readonly ITypeSymbol TypeSymbol = type;
+    
     /// <summary>
     ///     Represents the string type of union, derived from a symbol representation of a type.
     ///     Provides the string form of the type name for usage in union generation.
@@ -53,24 +61,24 @@ public readonly struct UnionStringValues(ITypeSymbol type, string? alias) {
     ///     Represents a property that determines whether a nullable postfix ("?") should be applied to the type string
     ///     based on whether the associated type is a reference type.
     /// </summary>
-    public string TypeNullable => type.IsReferenceType ? "?" : string.Empty;
+    public string TypeNullable => TypeSymbol.IsReferenceType ? "?" : string.Empty;
 
     /// <summary>
     ///     A string property representing a nullable annotation in the form of `[NotNullWhen(true)]`
     ///     appended conditionally based on the reference type status of the associated type.
     ///     Indicates that the output value will not be null when the corresponding condition evaluates to true.
     /// </summary>
-    public string NotNullWhen => type.IsReferenceType ? "[NotNullWhen(true)] " : string.Empty;
+    public string NotNullWhen => TypeSymbol.IsReferenceType ? "[NotNullWhen(true)] " : string.Empty;
 
     /// <summary>
     ///     Gets a string that represents a condition to verify if the associated type is not null.
     /// </summary>
-    public string TypeIsNotNull => type.IsReferenceType ? $" && {AsAlias} is not null" : string.Empty;
+    public string TypeIsNotNull => TypeSymbol.IsReferenceType ? $" && {AsAlias} is not null" : string.Empty;
 
     /// <summary>
     ///     Indicates that the specified member will not be null when the containing method returns a specified value.
     /// </summary>
-    public string MemberNotNullWhen => type.IsReferenceType ? $"[MemberNotNullWhen(true, \"{AsAlias}\")]" : string.Empty;
+    public string MemberNotNullWhen => TypeSymbol.IsReferenceType ? $"[MemberNotNullWhen(true, \"{AsAlias}\")]" : string.Empty;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

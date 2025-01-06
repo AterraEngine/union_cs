@@ -17,4 +17,4 @@ public readonly struct Failure;
 ///     Represents a failure, typically used within union types or result-based patterns.
 /// </summary>
 /// <typeparam name="T">The type of the value that describes the failure.</typeparam>
-public readonly record struct Failure<T>(T Value);
+public readonly record struct Failure<T>(T Value) : IValue<T>;

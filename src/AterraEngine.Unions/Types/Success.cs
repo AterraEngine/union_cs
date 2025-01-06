@@ -22,4 +22,4 @@ public readonly struct Success;
 /// <typeparam name="T">
 ///     The type of the value encapsulated by the success result.
 /// </typeparam>
-public readonly record struct Success<T>(T Value);
+public readonly record struct Success<T>(T Value) : IValue<T>;

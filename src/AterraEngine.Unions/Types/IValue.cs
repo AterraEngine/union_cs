@@ -6,14 +6,10 @@ namespace AterraEngine.Unions;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[AttributeUsage(AttributeTargets.Struct)]
-public class UnionExtraAttribute(UnionExtra extra) : Attribute {
-    public UnionExtra Extra { get; } = extra;
+public interface IValue<out T> {
+    public T Value { get; }
 }
 
-[Flags]
-public enum UnionExtra {
-    None            = 0b0,
-    GenerateFrom    = 0b1,
-    GenerateAsValue = 0b10,
+public interface IValues<out T> {
+    public T Values { get; }
 }

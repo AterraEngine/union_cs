@@ -19,4 +19,4 @@ public readonly struct Error;
 /// <typeparam name="T">
 ///     The type of the value associated with the error.
 /// </typeparam>
-public readonly record struct Error<T>(T Value);
+public readonly record struct Error<T>(T Value) : IValue<T>;
