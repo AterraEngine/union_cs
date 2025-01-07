@@ -16,5 +16,5 @@ public readonly struct Many<T>(IEnumerable<T> values) : IValues<T[]> {
     ///     An array of type T that contains the values provided to the Many struct.
     ///     Represents the internal storage of elements ensuring efficient access and manipulation.
     /// </summary>
-    public T[] Values { get; } =  values as T[] ?? values.ToArray();
+    public T[] Values { get; } = values as T[] ?? values.ToArray();
 }

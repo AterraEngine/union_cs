@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace AterraEngine.Unions;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,7 +12,7 @@ public class UnionExtraAttribute(UnionExtra extra) : Attribute {
 
 [Flags]
 public enum UnionExtra {
-    None            = 0b0,
-    GenerateFrom    = 0b1,
-    GenerateAsValue = 0b10,
+    None = 0b0,
+    GenerateFrom = 0b1,
+    GenerateAsValue = 0b10
 }

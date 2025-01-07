@@ -579,20 +579,20 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
         }
         """;
     #endregion
-    
+
     #region UnionExtra.GenerateFrom Test
     [LanguageInjection("csharp")] private const string UnionExtraGenerateFromInput = """
         using AterraEngine.Unions;
-        
+
         namespace TestNamespace;
         public readonly struct Success<T> {
             public T Value { get; init; }
         }
-        
+
         public struct None;
-        
+
         public struct False;
-        
+
         [AterraEngine.Unions.UnionExtra(UnionExtra.GenerateFrom)]
         public readonly partial struct TupleOrFalse() : AterraEngine.Unions.IUnion<(Success<string>, None), False> {}
         """;
@@ -689,22 +689,22 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
                 throw new ArgumentException("Union does not contain a value");
             }
             #endregion
-        
+
         }
         """;
     #endregion
-    
+
     #region UnionExtra.GenerateAsValue Test
     [LanguageInjection("csharp")] private const string UnionExtraGenerateAsValueInput = """
         namespace TestNamespace;
-        
+
         public readonly struct Success<T> : AterraEngine.Unions.IValue<T> {
             public T Value { get; init; }
         }
         public readonly struct SuccessMany<T> : AterraEngine.Unions.IValues<T> {
             public T Values { get; init; }
         }
-        
+
         [AterraEngine.Unions.UnionExtra(AterraEngine.Unions.UnionExtra.GenerateAsValue)]
         public readonly partial struct TupleOrFalse() : AterraEngine.Unions.IUnion<Success<string>, SuccessMany<int[]>>;
         """;
@@ -809,10 +809,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
                 throw new ArgumentException("Union does not contain a value");
             }
             #endregion
-        
+
         }
         """;
     #endregion
-    
-    
 }

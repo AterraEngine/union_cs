@@ -26,12 +26,12 @@ namespace AterraEngine.Unions.Generators;
 public readonly struct UnionStringValues(ITypeSymbol type, string? alias) {
 
     /// <summary>
-    /// Represents a symbol that describes the underlying type of a union.
-    /// This variable is used to store the type information for generating
-    /// utilities and metadata related to the union.
+    ///     Represents a symbol that describes the underlying type of a union.
+    ///     This variable is used to store the type information for generating
+    ///     utilities and metadata related to the union.
     /// </summary>
     public readonly ITypeSymbol TypeSymbol = type;
-    
+
     /// <summary>
     ///     Represents the string type of union, derived from a symbol representation of a type.
     ///     Provides the string form of the type name for usage in union generation.

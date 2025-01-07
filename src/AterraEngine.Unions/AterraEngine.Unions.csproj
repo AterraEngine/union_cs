@@ -23,21 +23,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false" />
-        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false" />
-        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false"/>
     </ItemGroup>
 
     <ItemGroup>
         <!-- ProjectReference for the generator as an analyzer -->
-        <ProjectReference Include="..\AterraEngine.Unions.Generators\AterraEngine.Unions.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\AterraEngine.Unions.Generators\AterraEngine.Unions.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
     <!--  Fixes a "buggy feature  -->
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-      <PackageReference Include="IsExternalInit" Version="1.0.3">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
+        <PackageReference Include="IsExternalInit" Version="1.0.3">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 </Project>

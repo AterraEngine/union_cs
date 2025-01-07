@@ -42,7 +42,6 @@ internal sealed class MaybeNullWhenAttribute : Attribute {
     public MaybeNullWhenAttribute(bool returnValue) {
         ReturnValue = returnValue;
     }
-
     /// <summary> Gets the return value condition.</summary>
     public bool ReturnValue { get; }
 }
@@ -60,7 +59,6 @@ internal sealed class NotNullWhenAttribute : Attribute {
     public NotNullWhenAttribute(bool returnValue) {
         ReturnValue = returnValue;
     }
-
     /// <summary>Gets the return value condition.</summary>
     public bool ReturnValue { get; }
 }
@@ -75,7 +73,6 @@ internal sealed class NotNullIfNotNullAttribute : Attribute {
     public NotNullIfNotNullAttribute(string parameterName) {
         ParameterName = parameterName;
     }
-
     /// <summary>Gets the associated parameter name.</summary>
     public string ParameterName { get; }
 }
@@ -96,7 +93,6 @@ internal sealed class DoesNotReturnIfAttribute : Attribute {
     public DoesNotReturnIfAttribute(bool parameterValue) {
         ParameterValue = parameterValue;
     }
-
     /// <summary>Gets the condition parameter value.</summary>
     public bool ParameterValue { get; }
 }
@@ -118,7 +114,6 @@ internal sealed class MemberNotNullAttribute : Attribute {
     public MemberNotNullAttribute(string member) {
         Members = [member];
     }
-
     /// <summary>Initializes the attribute with the list of field and property members.</summary>
     /// <param name="members">
     ///     The list of field and property members that are promised to be not-null.
@@ -126,7 +121,6 @@ internal sealed class MemberNotNullAttribute : Attribute {
     public MemberNotNullAttribute(params string[] members) {
         Members = members;
     }
-
     /// <summary>Gets field or property member names.</summary>
     public string[] Members { get; }
 }
@@ -148,7 +142,6 @@ internal sealed class MemberNotNullWhenAttribute : Attribute {
         ReturnValue = returnValue;
         Members = [member];
     }
-
     /// <summary>Initializes the attribute with the specified return value condition and list of field and property members.</summary>
     /// <param name="returnValue">
     ///     The return value condition. If the method returns this value, the associated parameter will not be null.
@@ -160,10 +153,8 @@ internal sealed class MemberNotNullWhenAttribute : Attribute {
         ReturnValue = returnValue;
         Members = members;
     }
-
     /// <summary>Gets the return value condition.</summary>
     public bool ReturnValue { get; }
-
     /// <summary>Gets field or property member names.</summary>
     public string[] Members { get; }
 }

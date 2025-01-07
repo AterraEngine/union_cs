@@ -94,13 +94,16 @@
 //     public static implicit operator GenericUnionWithAlias<T>(T value) => new Success<T>(value);
 // }
 
+using AterraEngine.Unions;
+
 namespace TestNamespace;
-public readonly struct Success<T> : AterraEngine.Unions.IValue<T> {
+public readonly struct Success<T> : IValue<T> {
     public T Value { get; init; }
 }
-public readonly struct SuccessMany<T> : AterraEngine.Unions.IValues<T> {
+
+public readonly struct SuccessMany<T> : IValues<T> {
     public T Values { get; init; }
 }
 
-[AterraEngine.Unions.UnionExtra(AterraEngine.Unions.UnionExtra.GenerateAsValue | AterraEngine.Unions.UnionExtra.GenerateFrom)]
-public readonly partial struct TupleOrFalse() : AterraEngine.Unions.IUnion<Success<string>, SuccessMany<int[]>>;
+[UnionExtra(UnionExtra.GenerateAsValue | UnionExtra.GenerateFrom)]
+public readonly partial struct TupleOrFalse() : IUnion<Success<string>, SuccessMany<int[]>>;

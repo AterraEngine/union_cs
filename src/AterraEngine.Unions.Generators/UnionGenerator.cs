@@ -91,7 +91,7 @@ public class UnionGenerator : IIncrementalGenerator {
         // Fetch aliases from the UnionAliases attribute
         AttributeData? aliasAttributeData = namedTypeSymbol.GetAttributes()
             .FirstOrDefault(attr => attr.AttributeClass?.Name == "UnionAliasesAttribute");
-        
+
         AttributeData? extraAttributeData = namedTypeSymbol.GetAttributes()
             .FirstOrDefault(attr => attr.AttributeClass?.Name == "UnionExtraAttribute");
 
@@ -210,7 +210,6 @@ public class UnionGenerator : IIncrementalGenerator {
                 .Indent(g => g
                     .AppendLine($"{sv.MemberNotNullWhen}public bool {sv.IsAlias} {{ get; private init; }} = false;")
                     .AppendLine($"{sv.MemberNotNullWhen}public {sv.Type}{sv.TypeNullable} {sv.AsAlias} {{get; private init;}} = default!;")
-                    
                     .AppendBody($$"""
                         public bool TryGet{{sv.AsAlias}}({{sv.NotNullWhen}}out {{sv.Type}}{{sv.TypeNullable}} value) {
                             if ({{sv.IsAlias}}{{sv.TypeIsNotNull}}) {
@@ -221,7 +220,6 @@ public class UnionGenerator : IIncrementalGenerator {
                             return false;
                         }
                         """)
-                    
                     .AppendBody($$"""
                         public static implicit operator {{unionObject.GetStructClassName()}}({{sv.Type}} value) => new {{unionObject.GetStructClassName()}}() {
                             {{sv.IsAlias}} = true,
@@ -238,7 +236,7 @@ public class UnionGenerator : IIncrementalGenerator {
                     };
                     """);
             }
-            
+
             if (unionObject.HasFlagGenerateAsValue() && unionObject.IsValidGenerateAsValue(sv.TypeSymbol, out bool isValues, out string valueTypeName, out string notNullWhen, out string nullable)) {
                 string s = isValues ? "s" : string.Empty;
                 builder.AppendBodyIndented($$"""
@@ -252,16 +250,15 @@ public class UnionGenerator : IIncrementalGenerator {
                     }
                     """);
             }
-            
+
             builder.AppendLineIndented("#endregion");
         }
         #endregion
 
         #region Value Property
-        
         builder.Indent(g => {
             g.AppendLine("public object? Value { get {");
-            g.ForEachAppendLineIndented(typeToStringValues.Values, sv => $"if ({sv.IsAlias}) return {sv.AsAlias};");
+            g.ForEachAppendLineIndented(typeToStringValues.Values, itemFormatter: sv => $"if ({sv.IsAlias}) return {sv.AsAlias};");
             g.AppendLineIndented("""throw new ArgumentException("Union does not contain a value");""");
             g.AppendLine("}}");
             g.AppendLine();
@@ -279,7 +276,7 @@ public class UnionGenerator : IIncrementalGenerator {
                     .AppendLine("switch (this) {")
                     .ForEachAppendLineIndented(
                         typeToStringValues.Values,
-                        sv => $"case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : return {sv.Alias.ToLowerInvariant()}Case(value);"
+                        itemFormatter: sv => $"case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : return {sv.Alias.ToLowerInvariant()}Case(value);"
                     )
                     .AppendLine("}")
                     .AppendLine("throw new ArgumentException(\"Union does not contain a value\");")
@@ -292,7 +289,7 @@ public class UnionGenerator : IIncrementalGenerator {
                     .AppendLine("switch (this) {")
                     .ForEachAppendLineIndented(
                         typeToStringValues.Values,
-                        sv => $"case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : return await {sv.Alias.ToLowerInvariant()}Case(value);"
+                        itemFormatter: sv => $"case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : return await {sv.Alias.ToLowerInvariant()}Case(value);"
                     )
                     .AppendLine("}")
                     .AppendLine("throw new ArgumentException(\"Union does not contain a value\");")
@@ -306,7 +303,7 @@ public class UnionGenerator : IIncrementalGenerator {
         #region Switch Methods
         string switchArgs = string.Join(",", typeToStringValues.Values.Select(sv => $"Action<{sv.Type}> {sv.Alias.ToLowerInvariant()}Case"));
         string switchArgsAsync = string.Join(",", typeToStringValues.Values.Select(sv => $"Func<{sv.Type}, Task> {sv.Alias.ToLowerInvariant()}Case"));
-        
+
         builder
             .AppendLineIndented("#region Switch and SwitchAsync")
             .Indent(g => g
@@ -314,7 +311,7 @@ public class UnionGenerator : IIncrementalGenerator {
                     .AppendLine("switch (this) {")
                     .ForEachAppendLineIndented(
                         typeToStringValues.Values,
-                        sv => $"case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : {sv.Alias.ToLowerInvariant()}Case(value); return;"
+                        itemFormatter: sv => $"case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : {sv.Alias.ToLowerInvariant()}Case(value); return;"
                     )
                     .AppendLine("}")
                     .AppendLine("throw new ArgumentException(\"Union does not contain a value\");")
@@ -327,7 +324,7 @@ public class UnionGenerator : IIncrementalGenerator {
                     .AppendLine("switch (this) {")
                     .ForEachAppendLineIndented(
                         typeToStringValues.Values,
-                        sv => $"case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : await {sv.Alias.ToLowerInvariant()}Case(value); return;"
+                        itemFormatter: sv => $"case {{{sv.IsAlias}: true, {sv.AsAlias}: var value}} : await {sv.Alias.ToLowerInvariant()}Case(value); return;"
                     )
                     .AppendLine("}")
                     .AppendLine("throw new ArgumentException(\"Union does not contain a value\");")
