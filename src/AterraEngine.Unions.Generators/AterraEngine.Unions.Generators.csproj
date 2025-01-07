@@ -43,7 +43,7 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0">
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="CodeOfChaos.GeneratorTools" Version="0.1.0-preview.7">
+        <PackageReference Include="CodeOfChaos.GeneratorTools" Version="0.1.0-preview.8">
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
     </ItemGroup>
