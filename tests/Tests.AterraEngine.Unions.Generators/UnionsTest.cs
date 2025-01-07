@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using AterraEngine.Unions;
 using AterraEngine.Unions.Generators;
+using CodeOfChaos.GeneratorTools;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Assembly=System.Reflection.Assembly;
@@ -21,7 +22,8 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
         Assembly.Load("System.Threading.Tasks"),
 
         typeof(IUnion<>).Assembly,
-        typeof(UnionAliasesAttribute).Assembly
+        typeof(UnionAliasesAttribute).Assembly,
+        typeof(GeneratorStringBuilder).Assembly
     ];
 
     // I hae no Clue why this is not working.
