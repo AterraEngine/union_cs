@@ -208,7 +208,8 @@ public class UnionGenerator : IIncrementalGenerator {
                 .AppendLineIndented($"#region {sv.Alias}")
                 .Indent(g => g
                     .AppendLine($"{sv.MemberNotNullWhen}public bool {sv.IsAlias} {{ get; private init; }} = false;")
-                    .AppendLine($"{sv.MemberNotNullWhen}public {sv.Type}{sv.TypeNullable} {sv.AsAlias} {{get; private init;}} = default!;").Indent(g2 => g2
+                    .AppendLine($"{sv.MemberNotNullWhen}public {sv.Type}{sv.TypeNullable} {sv.AsAlias} {{get; private init;}} = default!;")
+                    .AppendLine($"public bool TryGet{sv.AsAlias}({sv.NotNullWhen}out {sv.Type}{sv.TypeNullable} value) {{").Indent(g2 => g2
                         .AppendLine($"if ({sv.IsAlias}{sv.TypeIsNotNull}) {{").Indent(g3 => g3
                             .AppendLine($"value = {sv.AsAlias};")
                             .AppendLine("return true;")
@@ -247,6 +248,7 @@ public class UnionGenerator : IIncrementalGenerator {
                         .AppendLine($"value{s} = default;")
                         .AppendLine("return false;")
                     )
+                    .AppendLine("}")
                 );
             }
             
