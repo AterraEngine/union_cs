@@ -31,5 +31,7 @@
     <ItemGroup>
         <!-- ProjectReference for the generator as an analyzer -->
         <ProjectReference Include="..\AterraEngine.Unions.Generators\AterraEngine.Unions.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\AterraEngine.Unions.Lib\AterraEngine.Unions.Lib.csproj" />
     </ItemGroup>
+
 </Project>

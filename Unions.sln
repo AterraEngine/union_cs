@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{BBCA14D3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.AterraEngine.Unions", "src\Tools.AterraEngine.Unions\Tools.AterraEngine.Unions.csproj", "{3824A99F-DD8B-4699-A51A-D5260996D4B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AterraEngine.Unions.Lib", "src\AterraEngine.Unions.Lib\AterraEngine.Unions.Lib.csproj", "{334A9816-BB0D-4241-B156-7953EBE253CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,7 @@ Global
 		{FE770A7D-C5BC-4718-90C2-571EBA157CD7} = {E5117976-3EEF-4A2B-8A65-B7CCDEF6716A}
 		{54D8E2F4-D42C-454C-9C07-0EB4BC0B8036} = {CA995D89-7F17-447F-937D-83CAAD577437}
 		{3824A99F-DD8B-4699-A51A-D5260996D4B0} = {BBCA14D3-A8A1-4537-BD8C-C9C97DAF1F33}
+		{334A9816-BB0D-4241-B156-7953EBE253CB} = {567C231D-E8CF-4C9A-A958-6B187BBA8589}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C27CF889-6010-4550-8DE8-F913D1140029}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -65,5 +68,9 @@ Global
 		{3824A99F-DD8B-4699-A51A-D5260996D4B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3824A99F-DD8B-4699-A51A-D5260996D4B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3824A99F-DD8B-4699-A51A-D5260996D4B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{334A9816-BB0D-4241-B156-7953EBE253CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{334A9816-BB0D-4241-B156-7953EBE253CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{334A9816-BB0D-4241-B156-7953EBE253CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{334A9816-BB0D-4241-B156-7953EBE253CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

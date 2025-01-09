@@ -7,6 +7,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\AterraEngine.Unions.Generators\AterraEngine.Unions.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="..\AterraEngine.Unions\AterraEngine.Unions.csproj"/>
+        <ProjectReference Include="..\AterraEngine.Unions.Lib\AterraEngine.Unions.Lib.csproj" />
     </ItemGroup>
 </Project>

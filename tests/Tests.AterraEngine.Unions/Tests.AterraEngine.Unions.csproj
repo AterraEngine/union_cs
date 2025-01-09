@@ -11,10 +11,11 @@
 
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" Version="2024.3.0"/>
-        <PackageReference Include="TUnit" Version="0.6.33"/>
+        <PackageReference Include="TUnit" Version="0.6.52" />
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\AterraEngine.Unions.Lib\AterraEngine.Unions.Lib.csproj" />
         <ProjectReference Include="..\..\src\AterraEngine.Unions\AterraEngine.Unions.csproj"/>
     </ItemGroup>
 

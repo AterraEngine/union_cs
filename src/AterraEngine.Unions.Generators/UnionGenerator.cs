@@ -20,6 +20,7 @@ namespace AterraEngine.Unions.Generators;
 /// </summary>
 [Generator(LanguageNames.CSharp)]
 public class UnionGenerator : IIncrementalGenerator {
+    
     /// <summary>
     ///     Initializes the incremental generator by registering syntax providers and source output generation.
     /// </summary>
@@ -47,9 +48,8 @@ public class UnionGenerator : IIncrementalGenerator {
     ///     A boolean value indicating whether the provided syntax node is a valid union struct candidate.
     /// </returns>
     private static bool IsUnionStructCandidate(SyntaxNode node, CancellationToken _) {
-        if (node is
-            not ((StructDeclarationSyntax or RecordDeclarationSyntax { ClassOrStructKeyword.ValueText: "struct" })
-            and BaseTypeDeclarationSyntax { BaseList.Types.Count : > 0 } baseTypeDeclarationSyntax)) return false;
+        if (node is not (StructDeclarationSyntax or RecordDeclarationSyntax { ClassOrStructKeyword.ValueText: "struct" })) return false;
+        if (node is not BaseTypeDeclarationSyntax { BaseList.Types.Count : > 0 } baseTypeDeclarationSyntax) return false;
 
         return baseTypeDeclarationSyntax.BaseList.Types[0].Type switch {
             GenericNameSyntax { Identifier.ValueText: var valueText } => valueText.Contains("IUnion"),
