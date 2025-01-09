@@ -23,6 +23,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
 
         typeof(IUnion<>).Assembly,
         typeof(UnionAliasesAttribute).Assembly,
+        typeof(IValue<>).Assembly,
         typeof(GeneratorStringBuilder).Assembly
     ];
 
@@ -714,6 +715,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
         using System;
         using System.Diagnostics.CodeAnalysis;
         using System.Threading.Tasks;
+        
         namespace TestNamespace;
         #nullable enable
         public readonly partial struct TupleOrFalse {
@@ -742,7 +744,6 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
                 return false;
             }
             #endregion
-        
             #region SuccessManyOfInt32Array
             public bool IsSuccessManyOfInt32Array { get; private init; } = false;
             public TestNamespace.SuccessMany<int[]> AsSuccessManyOfInt32Array {get; private init;} = default!;
@@ -767,7 +768,6 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
                 return false;
             }
             #endregion
-        
             public object? Value { get {
                 if (IsSuccessOfString) return AsSuccessOfString;
                 if (IsSuccessManyOfInt32Array) return AsSuccessManyOfInt32Array;
@@ -777,16 +777,16 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
             #region Match and MatchAsync
             public TOutput Match<TOutput>(Func<TestNamespace.Success<string>, TOutput> successofstringCase,Func<TestNamespace.SuccessMany<int[]>, TOutput> successmanyofint32arrayCase){
                 switch (this) {
-                    case {IsSuccessOfString: true, AsSuccessOfString: var value} : return successofstringCase(value); 
-                    case {IsSuccessManyOfInt32Array: true, AsSuccessManyOfInt32Array: var value} : return successmanyofint32arrayCase(value); 
+                    case {IsSuccessOfString: true, AsSuccessOfString: var value} : return successofstringCase(value);
+                    case {IsSuccessManyOfInt32Array: true, AsSuccessManyOfInt32Array: var value} : return successmanyofint32arrayCase(value);
                 }
                 throw new ArgumentException("Union does not contain a value");
             }
         
             public async Task<TOutput> MatchAsync<TOutput>(Func<TestNamespace.Success<string>, Task<TOutput>> successofstringCase,Func<TestNamespace.SuccessMany<int[]>, Task<TOutput>> successmanyofint32arrayCase){
                 switch (this) {
-                    case {IsSuccessOfString: true, AsSuccessOfString: var value} : return await successofstringCase(value); 
-                    case {IsSuccessManyOfInt32Array: true, AsSuccessManyOfInt32Array: var value} : return await successmanyofint32arrayCase(value); 
+                    case {IsSuccessOfString: true, AsSuccessOfString: var value} : return await successofstringCase(value);
+                    case {IsSuccessManyOfInt32Array: true, AsSuccessManyOfInt32Array: var value} : return await successmanyofint32arrayCase(value);
                 }
                 throw new ArgumentException("Union does not contain a value");
             }
@@ -809,7 +809,7 @@ public class UnionGeneratorTests : IncrementalGeneratorTest<UnionGenerator> {
                 throw new ArgumentException("Union does not contain a value");
             }
             #endregion
-
+        
         }
         """;
     #endregion

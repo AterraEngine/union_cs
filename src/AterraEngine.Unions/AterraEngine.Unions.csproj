@@ -32,6 +32,10 @@
         <!-- ProjectReference for the generator as an analyzer -->
         <ProjectReference Include="..\AterraEngine.Unions.Generators\AterraEngine.Unions.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\AterraEngine.Unions.Lib\AterraEngine.Unions.Lib.csproj" />
+
+        <!-- Ugly, but this is because of some weirdness with how analyzers are imported through a project reference -->
+        <PackageReference Include="CodeOfChaos.GeneratorTools" Version="1.1.2" GeneratePathProperty="true" PrivateAssets="all" />
+        <Analyzer Include="$(PkgCodeOfChaos_GeneratorTools)\lib\netstandard2.0\*.dll" />
     </ItemGroup>
 
 </Project>
