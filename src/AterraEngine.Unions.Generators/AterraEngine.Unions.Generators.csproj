@@ -16,7 +16,7 @@
         
         <!-- Package metadata -->
         <PackageId>AterraEngine.Unions.Generators</PackageId>
-        <Version>3.5.0</Version>
+        <Version>3.5.0-preview.1</Version>
         <Authors>Anna Sas</Authors>
         <Description>The Source Generator for AterraEngine.Unions</Description>
         <PackageProjectUrl>https://github.com/AterraEngine/unions-cs/</PackageProjectUrl>
