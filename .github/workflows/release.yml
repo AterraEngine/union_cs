@@ -41,4 +41,5 @@ jobs:
                   NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
               run: |
                   dotnet nuget push src/AterraEngine.Unions/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+                  dotnet nuget push src/AterraEngine.Unions.Lib/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
                   dotnet nuget push src/AterraEngine.Unions.Generators/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
