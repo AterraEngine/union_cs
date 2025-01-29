@@ -41,7 +41,7 @@ public abstract class IncrementalGeneratorTest<TGenerator> where TGenerator : II
 
         GeneratorDriverRunResult runResult = driver.RunGenerators(compilation!).GetRunResult();
 
-        await Assert.That(runResult.GeneratedTrees).IsNotEmpty();
+        await Assert.That(runResult.GeneratedTrees.Length).IsNotEqualTo(0);
         foreach (Diagnostic diagnostic in runResult.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)) {
             Console.WriteLine($"Error Diagnostic: {diagnostic.GetMessage()}");
         }

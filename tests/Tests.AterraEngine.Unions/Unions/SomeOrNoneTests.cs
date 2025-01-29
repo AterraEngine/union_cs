@@ -94,7 +94,7 @@ public class SomeOrNoneTests {
 
         // Assert
         await Assert.That(result).IsTrue();
-        await Assert.That(some).IsTypeOf<Some<int>>();
+        await Assert.That((object)some).IsTypeOf<Some<int>>();
         await Assert.That(some.Values).IsEquivalentTo([4, 5, 6]);
     }
 
@@ -121,7 +121,7 @@ public class SomeOrNoneTests {
 
         // Assert
         await Assert.That(result).IsTrue();
-        await Assert.That(none).IsTypeOf<None>();
+        await Assert.That((object)none).IsTypeOf<None>();
     }
 
     [Test]

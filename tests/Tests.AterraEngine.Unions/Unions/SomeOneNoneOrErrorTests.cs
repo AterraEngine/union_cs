@@ -101,7 +101,7 @@ public class SomeOneNoneOrErrorTests {
 
         // Assert
         await Assert.That(success).IsTrue();
-        await Assert.That(result).IsTypeOf<Some<int>>();
+        await Assert.That((object)result).IsTypeOf<Some<int>>();
         await Assert.That(result.Values).IsEquivalentTo([10, 20, 30]);
     }
 
@@ -115,7 +115,7 @@ public class SomeOneNoneOrErrorTests {
 
         // Assert
         await Assert.That(success).IsTrue();
-        await Assert.That(result).IsTypeOf<One<int>>();
+        await Assert.That((object)result).IsTypeOf<One<int>>();
         await Assert.That(result.Value).IsEqualTo(42);
     }
 
@@ -129,7 +129,7 @@ public class SomeOneNoneOrErrorTests {
 
         // Assert
         await Assert.That(success).IsTrue();
-        await Assert.That(result).IsTypeOf<None>();
+        await Assert.That((object)result).IsTypeOf<None>();
     }
 
     [Test]
@@ -142,7 +142,7 @@ public class SomeOneNoneOrErrorTests {
 
         // Assert
         await Assert.That(success).IsTrue();
-        await Assert.That(result).IsTypeOf<Error<string>>();
+        await Assert.That((object)result).IsTypeOf<Error<string>>();
         await Assert.That(result.Value).IsEqualTo("Example Error");
     }
 

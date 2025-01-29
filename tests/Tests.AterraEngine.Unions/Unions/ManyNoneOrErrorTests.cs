@@ -43,7 +43,7 @@ public class ManyNoneOrErrorTests {
         ManyNoneOrError<int, string> union = new Many<int>([1, 2, 3]);
 
         await Assert.That(union.TryGetAsMany(out Many<int> result)).IsTrue();
-        await Assert.That(result).IsTypeOf<Many<int>>();
+        await Assert.That((object)result).IsTypeOf<Many<int>>();
     }
 
     [Test]
@@ -51,7 +51,7 @@ public class ManyNoneOrErrorTests {
         ManyNoneOrError<int, string> union = new None();
 
         await Assert.That(union.TryGetAsNone(out None result)).IsTrue();
-        await Assert.That(result).IsTypeOf<None>();
+        await Assert.That((object)result).IsTypeOf<None>();
     }
 
     [Test]
@@ -59,7 +59,7 @@ public class ManyNoneOrErrorTests {
         ManyNoneOrError<int, string> union = new Error<string>("An error occurred");
 
         await Assert.That(union.TryGetAsError(out Error<string> result)).IsTrue();
-        await Assert.That(result).IsTypeOf<Error<string>>();
+        await Assert.That((object)result).IsTypeOf<Error<string>>();
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class ManyNoneOrErrorTests {
         ManyNoneOrError<int, string> union = new None();
 
         await Assert.That(union.TryGetAsMany(out Many<int> result)).IsFalse();
-        await Assert.That(result).IsTypeOf<Many<int>>()
+        await Assert.That((object)result).IsTypeOf<Many<int>>()
             .And.IsEqualTo(default);
     }
 
@@ -76,7 +76,7 @@ public class ManyNoneOrErrorTests {
         ManyNoneOrError<int, string> union = new Error<string>("An error occurred");
 
         await Assert.That(union.TryGetAsNone(out None result)).IsFalse();
-        await Assert.That(result).IsTypeOf<None>()
+        await Assert.That((object)result).IsTypeOf<None>()
             .And.IsEqualTo(default);
     }
 
@@ -85,7 +85,7 @@ public class ManyNoneOrErrorTests {
         ManyNoneOrError<int, string> union = new Many<int>([4, 5, 6]);
 
         await Assert.That(union.TryGetAsError(out Error<string> result)).IsFalse();
-        await Assert.That(result).IsTypeOf<Error<string>>()
+        await Assert.That((object)result).IsTypeOf<Error<string>>()
             .And.IsEqualTo(default);
     }
 
@@ -97,7 +97,7 @@ public class ManyNoneOrErrorTests {
         await Assert.That(union.IsMany).IsTrue();
         await Assert.That(union.IsNone).IsFalse();
         await Assert.That(union.IsError).IsFalse();
-        await Assert.That(union.AsMany).IsTypeOf<Many<int>>();
+        await Assert.That((object)union.AsMany).IsTypeOf<Many<int>>();
     }
 
     [Test]
@@ -108,7 +108,7 @@ public class ManyNoneOrErrorTests {
         await Assert.That(union.IsMany).IsFalse();
         await Assert.That(union.IsNone).IsTrue();
         await Assert.That(union.IsError).IsFalse();
-        await Assert.That(union.AsNone).IsTypeOf<None>();
+        await Assert.That((object)union.AsNone).IsTypeOf<None>();
     }
 
     [Test]
@@ -119,7 +119,7 @@ public class ManyNoneOrErrorTests {
         await Assert.That(union.IsMany).IsFalse();
         await Assert.That(union.IsNone).IsFalse();
         await Assert.That(union.IsError).IsTrue();
-        await Assert.That(union.AsError).IsTypeOf<Error<string>>();
+        await Assert.That((object)union.AsError).IsTypeOf<Error<string>>();
     }
 
     [Test]
@@ -131,7 +131,8 @@ public class ManyNoneOrErrorTests {
         // Act & Assert
         switch (union) {
             case { IsMany: true, AsMany: var manyValue }:
-                await Assert.That(manyValue).IsTypeOf<Many<int>>().And.IsEqualTo(many);
+                await Assert.That((object)manyValue).IsTypeOf<Many<int>>();
+                await Assert.That(manyValue).IsEqualTo(many);
                 break;
             case { IsNone: true }:
                 Assert.Fail("Expected Many but got None");
@@ -154,7 +155,8 @@ public class ManyNoneOrErrorTests {
                 Assert.Fail("Expected None but got Many");
                 break;
             case { IsNone: true, AsNone: var noneValue }:
-                await Assert.That(noneValue).IsTypeOf<None>().And.IsEqualTo(none);
+                await Assert.That((object)noneValue).IsTypeOf<None>();
+                await Assert.That(noneValue).IsEqualTo(none);
                 break;
             case { IsError: true }:
                 Assert.Fail("Expected None but got Error");
@@ -177,7 +179,8 @@ public class ManyNoneOrErrorTests {
                 Assert.Fail("Expected Error but got None");
                 break;
             case { IsError: true, AsError: var errorValue }:
-                await Assert.That(errorValue).IsTypeOf<Error<string>>().And.IsEqualTo(error);
+                await Assert.That((object)errorValue).IsTypeOf<Error<string>>();
+                await Assert.That(errorValue).IsEqualTo(error);
                 break;
         }
     }

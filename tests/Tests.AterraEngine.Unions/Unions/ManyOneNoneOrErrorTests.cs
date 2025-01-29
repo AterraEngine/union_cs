@@ -70,7 +70,7 @@ public class ManyOneNoneOrErrorTests {
 
         // Assert
         await Assert.That(success).IsTrue();
-        await Assert.That(result).IsTypeOf<Many<int>>();
+        await Assert.That((object)result).IsTypeOf<Many<int>>();
     }
 
     [Test]
@@ -83,7 +83,7 @@ public class ManyOneNoneOrErrorTests {
 
         // Assert
         await Assert.That(success).IsTrue();
-        await Assert.That(result).IsTypeOf<One<int>>();
+        await Assert.That((object)result).IsTypeOf<One<int>>();
     }
 
     [Test]
@@ -96,7 +96,7 @@ public class ManyOneNoneOrErrorTests {
 
         // Assert
         await Assert.That(success).IsTrue();
-        await Assert.That(result).IsTypeOf<None>();
+        await Assert.That((object)result).IsTypeOf<None>();
     }
 
     [Test]
@@ -109,7 +109,7 @@ public class ManyOneNoneOrErrorTests {
 
         // Assert
         await Assert.That(success).IsTrue();
-        await Assert.That(result).IsTypeOf<Error<string>>();
+        await Assert.That((object)result).IsTypeOf<Error<string>>();
     }
 
     [Test]
@@ -122,7 +122,8 @@ public class ManyOneNoneOrErrorTests {
 
         // Assert
         await Assert.That(success).IsFalse();
-        await Assert.That(result).IsTypeOf<Many<int>>().And.IsEqualTo(default);
+        await Assert.That((object)result).IsTypeOf<Many<int>>();
+        await Assert.That(result).IsEqualTo(default);
     }
 
     [Test]
@@ -135,7 +136,8 @@ public class ManyOneNoneOrErrorTests {
 
         // Assert
         await Assert.That(success).IsFalse();
-        await Assert.That(result).IsTypeOf<One<int>>().And.IsEqualTo(default);
+        await Assert.That((object)result).IsTypeOf<One<int>>();
+        await Assert.That(result).IsEqualTo(default);
     }
 
     [Test]
@@ -147,7 +149,8 @@ public class ManyOneNoneOrErrorTests {
         // Act & Assert
         switch (union) {
             case { IsMany: true, AsMany: var manyValue }:
-                await Assert.That(manyValue).IsTypeOf<Many<int>>().And.IsEqualTo(many);
+                await Assert.That((object)manyValue).IsTypeOf<Many<int>>();
+                await Assert.That(manyValue).IsEqualTo(many);
                 break;
             case { IsOne: true }:
                 Assert.Fail("Expected Many but got One");
