@@ -9,7 +9,7 @@
 
         <IsPackable>true</IsPackable>
         <PackageId>AterraEngine.Unions.Lib</PackageId> <!-- Main package name -->
-        <Version>3.7.0</Version> <!-- Package version -->
+        <Version>3.7.1</Version> <!-- Package version -->
         <Authors>Anna Sas</Authors>
         <Description>A small package allowing you to use Union Structs</Description>
         <PackageProjectUrl>https://github.com/AterraEngine/unions-cs/</PackageProjectUrl>
